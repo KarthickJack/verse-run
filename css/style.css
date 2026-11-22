@@ -91,22 +91,23 @@ body {
    -------------------------------------------------------------------------- */
 
 /* HUD Container:
-   Dark score panel situated above the game stage.
-   Right-aligns the score counters just like a classic arcade screen. */
+   Uses Flexbox (display: flex) to distribute score items evenly across the bar.
+   justify-content: space-between places the High Score on the left and Current Score on the right. */
 #hud-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: #0a0f1d; /* Deep stage dark */
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 10px 16px;
   margin-bottom: 16px;
-  text-align: right;
 }
 
 /* Common Score Counter Styles:
-   Uses a grouped selector to apply shared retro typography without repeating code. */
+   Flex items automatically respect padding, font, and color without needing inline-block. */
 #high-score-display,
 #current-score-display {
-  display: inline-block;
   font-family: 'Courier New', Courier, monospace;
   font-size: 15px;
   font-weight: bold;
@@ -117,14 +118,13 @@ body {
 /* High Score Display:
    Highlighted in arcade gold for prestige. */
 #high-score-display {
-  color: #f59e0b;      /* Arcade gold */
-  margin-right: 12px;  /* Clearance separating it from the current score */
+  color: #f59e0b; /* Arcade gold */
 }
 
 /* Current Score Display:
    Highlighted in electric cyan for active gameplay clarity. */
 #current-score-display {
-  color: #38bdf8;      /* Electric cyan */
+  color: #38bdf8; /* Electric cyan */
 }
 
 /* --------------------------------------------------------------------------

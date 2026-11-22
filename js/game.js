@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 2 — Day 8: Functions and Reusable Logic
+   Week 2 — Day 9: Keyboard Events and Player Controls
    ========================================================================== */
 
 // External script connected successfully.
@@ -85,35 +85,26 @@ let isReadyOrWaiting = hasGameStarted || !isGameRunning;
 let isGameIdle = !isGameRunning;
 
 // ==========================================================================
-// FUNCTION PLAYGROUND (Day 8 Concepts & Exercises)
+// FUNCTION PLAYGROUND (Day 8 Preserved Functions)
 // ==========================================================================
 
 console.log("--- DAY 8: FUNCTION PLAYGROUND ---");
 
-// --------------------------------------------------------------------------
 // Exercise 1: Welcome Message Function
-// --------------------------------------------------------------------------
-// A zero-parameter function that outputs and returns a welcome greeting.
 function showWelcomeMessage() {
   const welcomeText = "Welcome to " + gameTitle + "!";
   console.log(welcomeText);
   return welcomeText;
 }
 
-// --------------------------------------------------------------------------
 // Exercise 2: Bonus Calculator Function
-// --------------------------------------------------------------------------
-// Accepts a numerical points value, adds 50 bonus points, and returns the sum.
 function calculateBonus(points) {
-  const bonus = 50; // Local variable scoped only inside calculateBonus
+  const bonus = 50;
   const totalWithBonus = points + bonus;
   return totalWithBonus;
 }
 
-// --------------------------------------------------------------------------
 // Exercise 3: High-Score Checker Function
-// --------------------------------------------------------------------------
-// Compares two numerical values and returns an informative string message.
 function checkHighScore(score, recordHighScore) {
   if (score > recordHighScore) {
     return "New record achieved! High score beaten.";
@@ -124,11 +115,7 @@ function checkHighScore(score, recordHighScore) {
   }
 }
 
-// --------------------------------------------------------------------------
 // Exercise 4: Difficulty Calculator Function
-// --------------------------------------------------------------------------
-// Evaluates score against thresholds and returns difficulty tier.
-// Rules: Below 100 -> Easy | 100 to 299 -> Medium | 300 and above -> Hard
 function getDifficulty(score) {
   if (score >= 300) {
     return "Hard";
@@ -139,23 +126,66 @@ function getDifficulty(score) {
   }
 }
 
+// ==========================================================================
+// KEYBOARD CONTROL PLAYGROUND (Day 9 Concepts & Exercises)
+// ==========================================================================
+
+console.log("--- DAY 9: KEYBOARD CONTROL PLAYGROUND ---");
+
 // --------------------------------------------------------------------------
-// Testing & Demonstrating Function Invocations
+// Named Functions for Keyboard Input Handling
 // --------------------------------------------------------------------------
 
-console.log("Invoking showWelcomeMessage():");
-showWelcomeMessage();
+// Exercise 5: Jump input handler
+// Note: Only logs intent; does NOT move Verse Man or change CSS position
+function handleJumpInput() {
+  console.log("Verse Man is ready to jump!");
+}
 
-console.log("Invoking calculateBonus(100):", calculateBonus(100)); // Expected: 150
-console.log("Invoking calculateBonus(20):", calculateBonus(20));   // Expected: 70
+// Directional input handlers
+function handleMoveLeft() {
+  console.log("Move Left input detected!");
+}
 
-console.log("Invoking checkHighScore(250, 200):", checkHighScore(250, 200)); // New record
-console.log("Invoking checkHighScore(150, 200):", checkHighScore(150, 200)); // Unbeaten
-console.log("Invoking checkHighScore(200, 200):", checkHighScore(200, 200)); // Tied
+function handleMoveRight() {
+  console.log("Move Right input detected!");
+}
 
-console.log("Invoking getDifficulty(50):", getDifficulty(50));   // Easy
-console.log("Invoking getDifficulty(150):", getDifficulty(150)); // Medium
-console.log("Invoking getDifficulty(450):", getDifficulty(450)); // Hard
+// --------------------------------------------------------------------------
+// Keyboard Event Listeners (Registered once at top level)
+// --------------------------------------------------------------------------
+
+// Listener for keydown (fires when a physical key is pressed down)
+document.addEventListener("keydown", function (event) {
+  // Exercise 1: Detect any key and display in browser console
+  console.log("Key pressed -> event.key:", event.key, "| event.code:", event.code);
+
+  // Exercise 6: Prevent default browser scrolling specifically for Spacebar
+  // Avoids page jumping down while playing
+  if (event.code === "Space") {
+    event.preventDefault();
+  }
+
+  // Exercise 2 & 5: Detect Spacebar and invoke handleJumpInput()
+  if (event.code === "Space" || event.key === " ") {
+    console.log("Jump key detected!");
+    handleJumpInput();
+  }
+
+  // Exercise 3: Detect arrow keys (ArrowLeft and ArrowRight)
+  if (event.key === "ArrowLeft") {
+    console.log("ArrowLeft detected!");
+    handleMoveLeft();
+  } else if (event.key === "ArrowRight") {
+    console.log("ArrowRight detected!");
+    handleMoveRight();
+  }
+});
+
+// Exercise 4: Listener for keyup (fires when a physical key is released)
+document.addEventListener("keyup", function (event) {
+  console.log("Key released -> event.key:", event.key, "| event.code:", event.code);
+});
 
 // --------------------------------------------------------------------------
 // 5. DOM Element Selection & Displaying Game Info
@@ -175,7 +205,7 @@ scoreElement.textContent = "SCORE: " + currentScore;
 highScoreElement.textContent = "HI: " + highScore;
 
 // --------------------------------------------------------------------------
-// Exercise 5: Organise the Start Button Interaction with a Named Function
+// 6. Start Button Interaction (Day 5 & Day 8 Preserved Named Function)
 // --------------------------------------------------------------------------
 
 // Named function: Contains the clean logic triggered when the player clicks Start

@@ -43,3 +43,16 @@ console.log("Title Element:", titleElement);
 console.log("Score Element:", scoreElement);
 console.log("Start Button Element:", startButton);
 console.log("Status Message Element:", statusMessage);
+
+// --------------------------------------------------------------------------
+// 3. Browser Events & User Interaction (Part C)
+// --------------------------------------------------------------------------
+
+// Add a click event listener to the Start Game button.
+// Triggers an anonymous callback function whenever the user clicks the button.
+startButton.addEventListener("click", function () {
+  console.log("Start Game button clicked!");
+
+  // Update the text content dynamically without refreshing the page
+  statusMessage.textContent = "Get ready, runner! Welcome to VERSE-RUN.";
+});

@@ -335,12 +335,19 @@ function handleMoveRight() {
 document.addEventListener("keydown", function (event) {
   console.log("Key pressed -> event.key:", event.key, "| event.code:", event.code);
 
-  if (event.code === "Space") {
+  // Prevent default window scrolling for jump keys (Space and ArrowUp)
+  if (event.code === "Space" || event.key === " " || event.key === "ArrowUp" || event.code === "ArrowUp") {
     event.preventDefault();
   }
 
-  // Trigger jump on Spacebar, guarded by state and repeat checks
-  if (event.code === "Space" || event.key === " ") {
+  // Trigger jump on Spacebar or ArrowUp, guarded by key repeat and state inside jump()
+  const isJumpKey =
+    event.code === "Space" ||
+    event.key === " " ||
+    event.key === "ArrowUp" ||
+    event.code === "ArrowUp";
+
+  if (isJumpKey) {
     if (!event.repeat) {
       jump();
     }
@@ -405,6 +412,7 @@ function handleCollision() {
 
   // State Transition: PLAYING -> GAMEOVER
   gameState = "gameover";
+  isGameRunning = false;
   hasCollided = true;
   isPlayerAlive = false;
 

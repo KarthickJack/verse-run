@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 4 — Day 17: Multiple Obstacles and Difficulty Integration
+   Week 4 — Day 18: Collectibles and Game Feedback
    ========================================================================== */
 
 // External script connected successfully.
@@ -18,8 +18,10 @@ const characterName = "Verse Man";   // String data type: Playable pixel runner 
 // 2. Numerical Information & Data Structures (Variables: Numbers & Collections)
 // --------------------------------------------------------------------------
 
-// Score tracking, elapsed time accumulation, runner physics and obstacle management (Day 15, 16 & 17)
-let currentScore = 0;                // Number data type: Current distance/points in active run
+// Score tracking: survival distance and collectible bonuses (Day 15 & 18)
+let survivalScore = 0;               // Number data type: Time-based distance score (1 pt/s, drives difficulty)
+let bonusScore = 0;                  // Number data type: Bonus points from collected Verse Coins (10 pts each)
+let currentScore = 0;                // Number data type: Total combined score rendered on the HUD
 let highScore = 0;                   // Number data type: Highest score achieved in session
 let elapsedScoreTime = 0;            // Number data type: Accumulated delta time in seconds for scoring
 let currentDifficulty = "easy";      // String data type: Current difficulty tier ("easy" | "medium" | "hard")
@@ -31,6 +33,14 @@ let activeObstacles = [];            // Array data type: Stores active obstacle 
 let obstacleSpawnTimer = 0;          // Number data type: Elapsed delta time (seconds) since last spawn
 let nextSpawnInterval = 2.0;         // Number data type: Target interval (seconds) before next obstacle spawns
 const maxActiveObstacles = 4;        // Number data type: Maximum simultaneous obstacles on stage
+
+// Verse Coin Collectible management & dimensional constants (Day 18)
+const coinWidth = 24;                // Number data type: Width (px) matching CSS .verse-coin
+const coinHeight = 24;               // Number data type: Height (px) matching CSS .verse-coin
+let activeCoins = [];                // Array data type: Stores active coin objects [{ element, x, y, width, height, isCollected, pointValue }]
+let coinSpawnTimer = 0;              // Number data type: Elapsed delta time (seconds) since last coin spawn
+let nextCoinSpawnInterval = 2.5;     // Number data type: Target interval (seconds) before next coin spawns
+const maxActiveCoins = 3;            // Number data type: Maximum simultaneous coins on stage
 
 // --------------------------------------------------------------------------
 // 3. Game Status & Finite State Management (Day 14 Architecture)
@@ -58,10 +68,13 @@ console.log("Game State:", gameState);
 console.log("Game Title:", gameTitle);
 console.log("Player Character:", characterName);
 console.log("Current Score:", currentScore);
+console.log("Survival Score:", survivalScore);
+console.log("Bonus Score:", bonusScore);
 console.log("High Score:", highScore);
 console.log("Current Difficulty:", currentDifficulty);
 console.log("Game Speed:", gameSpeed);
 console.log("Active Obstacles Count:", activeObstacles.length);
+console.log("Active Coins Count:", activeCoins.length);
 console.log("Is Game Running:", isGameRunning);
 console.log("Has Game Started:", hasGameStarted);
 console.log("Is Player Alive:", isPlayerAlive);
@@ -358,6 +371,195 @@ function clearAllObstacles() {
 }
 
 // ==========================================================================
+// COLLECTIBLE & FEEDBACK ENGINE (Day 18 Architecture)
+// ==========================================================================
+
+console.log("--- DAY 18: COLLECTIBLES & GAME FEEDBACK ---");
+
+// Step A: Dynamically create and register a Verse Coin entity
+function createCoin(spawnX, spawnY) {
+  if (
+    !gameStageElement ||
+    typeof document.createElement !== "function" ||
+    typeof gameStageElement.appendChild !== "function"
+  ) {
+    return null;
+  }
+
+  const stageWidth = getStageWidth();
+  const posX = typeof spawnX === "number" ? spawnX : stageWidth;
+  const posY = typeof spawnY === "number" ? spawnY : 60; // Default altitude (px) above ground
+
+  // Create DOM element using .verse-coin styling
+  const element = document.createElement("div");
+  element.className = "verse-coin";
+  element.textContent = "C"; // C-VERSE Coin emblem
+  element.style.right = "auto";
+  element.style.left = posX + "px";
+  element.style.bottom = (groundBaseline + posY) + "px";
+
+  gameStageElement.appendChild(element);
+
+  // Register in active coins array
+  const coinObj = {
+    element: element,
+    x: posX,
+    y: posY,
+    width: coinWidth,
+    height: coinHeight,
+    isCollected: false,
+    pointValue: 10
+  };
+
+  activeCoins.push(coinObj);
+  return coinObj;
+}
+
+// Step D & E: Update active coins movement and remove off-screen ones
+function updateCoins(deltaTime) {
+  if (gameState !== "playing") {
+    return;
+  }
+
+  // Reverse loop for safe in-place array splice
+  for (let i = activeCoins.length - 1; i >= 0; i--) {
+    const coin = activeCoins[i];
+
+    // Synchronized horizontal movement matching gameSpeed
+    coin.x -= gameSpeed * deltaTime;
+
+    // Off-screen check: fully exited left boundary (x < -width)
+    if (coin.x < -coin.width) {
+      if (
+        coin.element &&
+        coin.element.parentNode &&
+        typeof coin.element.parentNode.removeChild === "function"
+      ) {
+        coin.element.parentNode.removeChild(coin.element);
+      }
+      activeCoins.splice(i, 1);
+    } else {
+      // Update DOM horizontal position
+      if (coin.element) {
+        coin.element.style.left = coin.x + "px";
+      }
+    }
+  }
+}
+
+// Step G: Trigger visible +10 floating feedback indicator
+function triggerCollectionFeedback(x, y) {
+  if (
+    !gameStageElement ||
+    typeof document.createElement !== "function" ||
+    typeof gameStageElement.appendChild !== "function"
+  ) {
+    return;
+  }
+
+  const feedbackEl = document.createElement("div");
+  feedbackEl.className = "score-feedback";
+  feedbackEl.textContent = "+10";
+  feedbackEl.style.left = x + "px";
+  feedbackEl.style.bottom = (groundBaseline + y + 15) + "px";
+
+  gameStageElement.appendChild(feedbackEl);
+
+  // Clean up floating feedback element after CSS animation (0.6s) completes
+  setTimeout(function () {
+    if (
+      feedbackEl.parentNode &&
+      typeof feedbackEl.parentNode.removeChild === "function"
+    ) {
+      feedbackEl.parentNode.removeChild(feedbackEl);
+    }
+  }, 650);
+}
+
+// Step E: Handle coin collection, single award, and feedback
+function collectCoin(coin, index) {
+  if (coin.isCollected) {
+    return; // Guard against duplicate collection
+  }
+
+  coin.isCollected = true;
+
+  // Award exactly 10 bonus points
+  awardBonusPoints(coin.pointValue);
+
+  // Show floating visual feedback at collection point
+  triggerCollectionFeedback(coin.x, coin.y);
+
+  console.log("VERSE COIN COLLECTED! +10 Bonus | Total Score:", currentScore);
+
+  // Detach DOM element immediately
+  if (
+    coin.element &&
+    coin.element.parentNode &&
+    typeof coin.element.parentNode.removeChild === "function"
+  ) {
+    coin.element.parentNode.removeChild(coin.element);
+  }
+
+  // Remove from active array
+  activeCoins.splice(index, 1);
+}
+
+// Step C: Controlled coin spawning with reachable heights and obstacle avoidance
+function updateCoinSpawning(deltaTime) {
+  if (gameState !== "playing") {
+    return;
+  }
+
+  coinSpawnTimer += deltaTime;
+
+  if (coinSpawnTimer >= nextCoinSpawnInterval) {
+    if (activeCoins.length < maxActiveCoins) {
+      const stageWidth = getStageWidth();
+
+      // Obstacle avoidance: do not spawn coin directly on top of an obstacle
+      let isNearObstacle = false;
+      for (let i = 0; i < activeObstacles.length; i++) {
+        if (Math.abs(activeObstacles[i].x - stageWidth) < 100) {
+          isNearObstacle = true;
+          break;
+        }
+      }
+
+      // Proximity guard against existing coins
+      const lastCoin = activeCoins[activeCoins.length - 1];
+      const isNearCoin = lastCoin && Math.abs(lastCoin.x - stageWidth) < 120;
+
+      if (!isNearObstacle && !isNearCoin) {
+        // Safe, reachable vertical altitudes: 15px (running ground reach) or 60px/75px (jump arc reach)
+        const reachableAltitudes = [15, 60, 75];
+        const randomAltitude = reachableAltitudes[Math.floor(Math.random() * reachableAltitudes.length)];
+
+        createCoin(stageWidth, randomAltitude);
+        coinSpawnTimer = 0;
+        // Randomize next coin spawn interval between 2.0s and 3.5s
+        nextCoinSpawnInterval = Math.random() * 1.5 + 2.0;
+      }
+    }
+  }
+}
+
+// Step H: Clear all active coin elements and reset collection array
+function clearAllCoins() {
+  for (let i = 0; i < activeCoins.length; i++) {
+    const coin = activeCoins[i];
+    if (
+      coin.element &&
+      coin.element.parentNode &&
+      typeof coin.element.parentNode.removeChild === "function"
+    ) {
+      coin.element.parentNode.removeChild(coin.element);
+    }
+  }
+  activeCoins = [];
+}
+
+// ==========================================================================
 // SCORE & DIFFICULTY PROGRESSION ENGINE (Day 15 Architecture)
 // ==========================================================================
 
@@ -375,6 +577,13 @@ function getGameSpeed(difficulty) {
   }
 }
 
+// Step F: Award bonus points from collected Verse Coins (Day 18)
+function awardBonusPoints(points) {
+  bonusScore += points;
+  currentScore = survivalScore + bonusScore;
+  renderScore();
+}
+
 // Step C: Update the score display in the DOM
 function renderScore() {
   if (scoreElement) {
@@ -382,9 +591,9 @@ function renderScore() {
   }
 }
 
-// Step F: Evaluate difficulty progression and update speed & status message
+// Step F: Evaluate difficulty progression based on survival distance (prevents coin bonus spikes)
 function updateDifficulty() {
-  const newDifficulty = getDifficulty(currentScore);
+  const newDifficulty = getDifficulty(survivalScore);
   const newSpeed = getGameSpeed(newDifficulty);
 
   const difficultyChanged = newDifficulty !== currentDifficulty;
@@ -404,7 +613,7 @@ function updateDifficulty() {
   }
 }
 
-// Step B: Time-based score accumulation using delta time
+// Step B: Time-based survival score accumulation using delta time
 function updateScore(deltaTime) {
   // Step B & I: Score must update only while the game is PLAYING
   if (gameState !== "playing") {
@@ -417,13 +626,14 @@ function updateScore(deltaTime) {
 
   // Use a while loop to safely account for large delta-time intervals
   while (elapsedScoreTime >= 1) {
-    currentScore += 1;
+    survivalScore += 1;
     elapsedScoreTime -= 1;
     scoreChanged = true;
   }
 
   // Avoid unnecessary DOM thrashing: Update display only when score changes
   if (scoreChanged) {
+    currentScore = survivalScore + bonusScore;
     renderScore();
     updateDifficulty();
   }
@@ -636,26 +846,55 @@ function gameLoop(currentTimestamp) {
     }
   }
 
-  // 5. Update time-based score and difficulty progression (Day 15 Step G)
+  // 5. Update active coins movement & off-screen cleanup (Day 18 Step D)
+  if (gameState === "playing") {
+    updateCoins(deltaTime);
+  }
+
+  // 6. Update controlled coin spawning (Day 18 Step C)
+  if (gameState === "playing") {
+    updateCoinSpawning(deltaTime);
+  }
+
+  // 7. Check collectible coin collection (Day 18 Step E)
+  if (verseManElement && gameState === "playing") {
+    const playerBox = getBoundingBox(verseManElement);
+
+    for (let i = activeCoins.length - 1; i >= 0; i--) {
+      const coin = activeCoins[i];
+      if (!coin.isCollected && coin.element) {
+        const coinBox = getBoundingBox(coin.element);
+
+        if (isColliding(playerBox, coinBox)) {
+          collectCoin(coin, i);
+        }
+      }
+    }
+  }
+
+  // 8. Update time-based survival score and difficulty progression (Day 15 Step G)
   if (gameState === "playing") {
     updateScore(deltaTime);
   }
 
-  // 6. Increment frame counter and log periodically
+  // 9. Increment frame counter and log periodically
   frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
       "Game Loop Active (" + gameState + ") | Frame:", frameCount,
       "| Score:", currentScore,
+      "| Survival Score:", survivalScore,
+      "| Bonus Score:", bonusScore,
       "| Difficulty:", currentDifficulty.toUpperCase(),
       "| Speed:", gameSpeed + " px/s",
       "| Active Obstacles:", activeObstacles.length,
+      "| Active Coins:", activeCoins.length,
       "| Player Height Above Ground:", Math.round(playerY) + "px",
       "| Grounded:", isPlayerOnGround
     );
   }
 
-  // 7. Schedule next frame only if still actively playing
+  // 10. Schedule next frame only if still actively playing
   if (typeof requestAnimationFrame === "function" && gameState === "playing") {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
@@ -716,10 +955,12 @@ function startGame() {
   hasCollided = false;
   isPlayerAlive = true;
 
-  // Day 15 Step H: Reset score, accumulator, difficulty and speed on start
+  // Day 15 & 18: Reset score components, accumulator, difficulty and speed on start
+  survivalScore = 0;
+  bonusScore = 0;
   currentScore = 0;
   elapsedScoreTime = 0;
-  currentDifficulty = getDifficulty(currentScore);
+  currentDifficulty = getDifficulty(survivalScore);
   gameSpeed = getGameSpeed(currentDifficulty);
   renderScore();
 
@@ -728,6 +969,11 @@ function startGame() {
   obstacleSpawnTimer = 0;
   nextSpawnInterval = getRandomSpawnInterval(currentDifficulty);
   createObstacle(getStageWidth());
+
+  // Day 18 Step H: Reset collectibles, coin spawn timer and target interval
+  clearAllCoins();
+  coinSpawnTimer = 0;
+  nextCoinSpawnInterval = 2.0;
 
   // Step F & H: Display playing message with current difficulty
   if (statusMessage) {
@@ -739,7 +985,7 @@ function startGame() {
 
   console.log("STATE TRANSITION: gameState is now 'playing'");
   console.log("Updated Game Status -> Score:", currentScore, "| Difficulty:", currentDifficulty, "| Speed:", gameSpeed);
-  console.log("Updated Game Status -> Active Obstacles:", activeObstacles.length, "| hasGameStarted:", hasGameStarted);
+  console.log("Updated Game Status -> Active Obstacles:", activeObstacles.length, "| Active Coins:", activeCoins.length);
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 

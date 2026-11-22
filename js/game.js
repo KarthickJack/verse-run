@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 3 — Day 13: Collision Detection
+   Week 3 — Day 14: Game States
    ========================================================================== */
 
 // External script connected successfully.
@@ -24,10 +24,13 @@ let highScore = 0;                   // Number data type: Highest score achieved
 let gameSpeed = 5;                   // Number data type: Scrolling speed of ground & obstacles
 
 // --------------------------------------------------------------------------
-// 3. Game Status (Variables: Booleans and empty states)
+// 3. Game Status & Finite State Management (Day 14 Architecture)
 // --------------------------------------------------------------------------
 
-// Binary flags and message container
+// Central game state variable: "ready" | "playing" | "gameover"
+let gameState = "ready";             // Initial state: Game waits on standby for player to start
+
+// Binary flags and message container (preserved)
 let isGameRunning = false;           // Boolean data type: True only during active run
 let hasGameStarted = false;          // Boolean data type: True once the player starts the game
 let gameOverMessage = null;          // Null data type: Intentionally empty until a crash occurs
@@ -42,6 +45,7 @@ let hasCollided = false;             // Boolean data type: True when player has 
 // --------------------------------------------------------------------------
 
 console.log("--- INITIAL GAME STATE ---");
+console.log("Game State:", gameState);
 console.log("Game Title:", gameTitle);
 console.log("Player Character:", characterName);
 console.log("Current Score:", currentScore);
@@ -192,11 +196,16 @@ const statusMessage = document.getElementById("game-status-message");
 scoreElement.textContent = "SCORE: " + currentScore;
 highScoreElement.textContent = "HI: " + highScore;
 
+// Step B & H: Initial READY state message
+if (statusMessage) {
+  statusMessage.textContent = "Press Start Game to begin!";
+}
+
 // ==========================================================================
-// PLAYER PHYSICS & MOVEMENT (Day 12 Preserved Engine)
+// PLAYER PHYSICS & MOVEMENT (Day 12 & Day 14 State Integration)
 // ==========================================================================
 
-console.log("--- DAY 12: PLAYER PHYSICS & MOVEMENT ---");
+console.log("--- DAY 12 & 14: PLAYER PHYSICS & STATE RESTRICTIONS ---");
 
 // CSS baseline: #verse-man { bottom: 35px; } resting on 35px ground track
 const groundBaseline = 35;       // Constant: CSS bottom offset (px) for ground level
@@ -225,9 +234,11 @@ function updatePlayerPhysics(deltaTime) {
   }
 }
 
-// Triggers jump impulse when grounded
+// Step E: Restrict jumping strictly to "playing" state
 function jump() {
-  if (!isPlayerOnGround || !isLoopRunning) {
+  // Restriction 1: Must be in "playing" state
+  // Restriction 2: Must be grounded
+  if (gameState !== "playing" || !isPlayerOnGround) {
     return;
   }
 
@@ -252,6 +263,7 @@ document.addEventListener("keydown", function (event) {
     event.preventDefault();
   }
 
+  // Trigger jump on Spacebar, guarded by state and repeat checks
   if (event.code === "Space" || event.key === " ") {
     if (!event.repeat) {
       jump();
@@ -272,12 +284,11 @@ document.addEventListener("keyup", function (event) {
 });
 
 // ==========================================================================
-// COLLISION DETECTION ENGINE (Day 13 Concepts & Implementation)
+// COLLISION DETECTION ENGINE (Day 13 Preserved Logic)
 // ==========================================================================
 
-console.log("--- DAY 13: COLLISION DETECTION ---");
+console.log("--- DAY 13 & 14: COLLISION DETECTION & GAME OVER TRANSITION ---");
 
-// Step B: Calculate Bounding Box of any element in viewport coordinates
 function getBoundingBox(element) {
   if (!element || typeof element.getBoundingClientRect !== "function") {
     return null;
@@ -293,64 +304,58 @@ function getBoundingBox(element) {
   };
 }
 
-// Step C, D & E: Axis-Aligned Bounding Box (AABB) Collision Detection Function
-// Checks both horizontal and vertical overlap in a unified coordinate space
 function isColliding(playerRect, obstacleRect) {
   if (!playerRect || !obstacleRect) {
     return false;
   }
 
-  // Step C: Horizontal overlap conditions:
-  // 1. player.right > obstacle.left (Player right edge past obstacle left edge)
-  // 2. player.left < obstacle.right (Player left edge before obstacle right edge)
   const horizontalOverlap =
     playerRect.right > obstacleRect.left &&
     playerRect.left < obstacleRect.right;
 
-  // Step D: Vertical overlap conditions (in screen coordinates where top is 0 and bottom is positive):
-  // 3. player.bottom > obstacle.top (Player bottom edge below obstacle top edge)
-  // 4. player.top < obstacle.bottom (Player top edge above obstacle bottom edge)
   const verticalOverlap =
     playerRect.bottom > obstacleRect.top &&
     playerRect.top < obstacleRect.bottom;
 
-  // Collision occurs IF AND ONLY IF both horizontal and vertical overlap occur simultaneously
   return horizontalOverlap && verticalOverlap;
 }
 
-// Step G: Basic Collision Response Handler
-// Executes once, stops game loop, and updates status area
+// Step F: GAME OVER transition handler
 function handleCollision() {
-  if (hasCollided) {
-    return; // Prevent duplicate collision handling
+  // Transition guard: Only trigger if currently in "playing" state
+  if (gameState !== "playing") {
+    return;
   }
 
+  // State Transition: PLAYING -> GAMEOVER
+  gameState = "gameover";
   hasCollided = true;
   isPlayerAlive = false;
 
+  console.log("STATE TRANSITION: gameState is now 'gameover'");
   console.log("COLLISION DETECTED! Verse Man struck an obstacle.");
 
   // Safely stop the game loop
   stopGameLoop();
 
-  // Display collision message in status area
+  // Step H: Display Game Over message
   if (statusMessage) {
-    statusMessage.textContent = "CRASH! Verse Man collided with an obstacle.";
+    statusMessage.textContent = "Game Over! You hit an obstacle.";
   }
 }
 
 // ==========================================================================
-// GAME LOOP ENGINE WITH PHYSICS & COLLISION INTEGRATION
+// GAME LOOP ENGINE WITH STATE-BASED EXECUTION (Day 14 Step G)
 // ==========================================================================
 
-// Game loop control variables
 let isLoopRunning = false;        // Boolean flag: True while game loop is active
 let animationFrameId = null;      // Holds request ID from requestAnimationFrame for cancellation
 let frameCount = 0;               // Tracks total animation frames elapsed during active run
 
 // The core loop callback
 function gameLoop(currentTimestamp) {
-  if (!isLoopRunning) {
+  // Step G: Ensure loop updates run ONLY while in "playing" state
+  if (gameState !== "playing" || !isLoopRunning) {
     return;
   }
 
@@ -368,8 +373,8 @@ function gameLoop(currentTimestamp) {
   // 1. Update player vertical physics
   updatePlayerPhysics(deltaTime);
 
-  // 2. Step F: Collision detection during active game update
-  if (verseManElement && obstacleElement && !hasCollided) {
+  // 2. Perform collision detection during active gameplay
+  if (verseManElement && obstacleElement && gameState === "playing") {
     const playerBox = getBoundingBox(verseManElement);
     const obstacleBox = getBoundingBox(obstacleElement);
 
@@ -383,14 +388,14 @@ function gameLoop(currentTimestamp) {
   frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
-      "Game Loop Active | Frame:", frameCount,
+      "Game Loop Active (" + gameState + ") | Frame:", frameCount,
       "| Player Height Above Ground:", Math.round(playerY) + "px",
       "| Grounded:", isPlayerOnGround
     );
   }
 
-  // Schedule next frame
-  if (typeof requestAnimationFrame === "function") {
+  // Schedule next frame only if still actively playing
+  if (typeof requestAnimationFrame === "function" && gameState === "playing") {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
 }
@@ -403,10 +408,8 @@ function startGameLoop() {
   }
 
   isLoopRunning = true;
-  hasCollided = false;       // Reset collision flag for active session
-  isPlayerAlive = true;
   lastFrameTimestamp = null; // Reset timestamp on start
-  console.log("Starting VERSE-RUN Game Loop with Collision Detection...");
+  console.log("Starting VERSE-RUN Game Loop in PLAYING state...");
 
   if (typeof requestAnimationFrame === "function") {
     animationFrameId = requestAnimationFrame(gameLoop);
@@ -432,20 +435,35 @@ function stopGameLoop() {
 }
 
 // --------------------------------------------------------------------------
-// Start Button Interaction (Day 5, 8, 11 & 13 Integration)
+// Start Button Interaction (Day 14 Step C: READY -> PLAYING Transition)
 // --------------------------------------------------------------------------
 
 function startGame() {
   console.log("Start Game button clicked! (startGame function invoked)");
 
+  // Step C Guard: Only permit transition from "ready" to "playing"
+  // Prevents invalid transitions: "playing" -> "playing" (duplicate) or "gameover" -> "playing" (restart)
+  if (gameState !== "ready") {
+    console.log("Start Game ignored: Current gameState is '" + gameState + "' (must be 'ready').");
+    return;
+  }
+
+  // State Transition: READY -> PLAYING
+  gameState = "playing";
   hasGameStarted = true;
   isGameRunning = true;
+  hasCollided = false;
+  isPlayerAlive = true;
 
-  statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
+  // Step H: Display playing message
+  if (statusMessage) {
+    statusMessage.textContent = "Run, Verse Man!";
+  }
 
   // Start continuous loop
   startGameLoop();
 
+  console.log("STATE TRANSITION: gameState is now 'playing'");
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 

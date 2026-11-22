@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 3 — Day 14: Game States
+   Week 3 — Day 15: Score and Difficulty
    ========================================================================== */
 
 // External script connected successfully.
@@ -18,10 +18,12 @@ const characterName = "Verse Man";   // String data type: Playable pixel runner 
 // 2. Numerical Information (Variables: Numbers that will change)
 // --------------------------------------------------------------------------
 
-// Score tracking and runner physics
+// Score tracking, elapsed time accumulation and runner physics (Day 15)
 let currentScore = 0;                // Number data type: Current distance/points in active run
 let highScore = 0;                   // Number data type: Highest score achieved in session
-let gameSpeed = 5;                   // Number data type: Scrolling speed of ground & obstacles
+let elapsedScoreTime = 0;            // Number data type: Accumulated delta time in seconds for scoring
+let currentDifficulty = "easy";      // String data type: Current difficulty tier ("easy" | "medium" | "hard")
+let gameSpeed = 200;                 // Number data type: World scrolling speed in px/s (Day 15 values: 200, 260, 320)
 
 // --------------------------------------------------------------------------
 // 3. Game Status & Finite State Management (Day 14 Architecture)
@@ -50,6 +52,7 @@ console.log("Game Title:", gameTitle);
 console.log("Player Character:", characterName);
 console.log("Current Score:", currentScore);
 console.log("High Score:", highScore);
+console.log("Current Difficulty:", currentDifficulty);
 console.log("Game Speed:", gameSpeed);
 console.log("Is Game Running:", isGameRunning);
 console.log("Has Game Started:", hasGameStarted);
@@ -115,12 +118,13 @@ function checkHighScore(score, recordHighScore) {
 }
 
 function getDifficulty(score) {
-  if (score >= 300) {
-    return "Hard";
+  // Day 15 Step D: Highest threshold checked first to avoid shadowing
+  if (score >= 200) {
+    return "hard";
   } else if (score >= 100) {
-    return "Medium";
+    return "medium";
   } else {
-    return "Easy";
+    return "easy";
   }
 }
 
@@ -199,6 +203,78 @@ highScoreElement.textContent = "HI: " + highScore;
 // Step B & H: Initial READY state message
 if (statusMessage) {
   statusMessage.textContent = "Press Start Game to begin!";
+}
+
+// ==========================================================================
+// SCORE & DIFFICULTY PROGRESSION ENGINE (Day 15 Architecture)
+// ==========================================================================
+
+console.log("--- DAY 15: SCORE & DIFFICULTY PROGRESSION ---");
+
+// Step E: Game speed values mapped to difficulty tiers
+function getGameSpeed(difficulty) {
+  const level = String(difficulty).toLowerCase();
+  if (level === "hard") {
+    return 320;
+  } else if (level === "medium") {
+    return 260;
+  } else {
+    return 200;
+  }
+}
+
+// Step C: Update the score display in the DOM
+function renderScore() {
+  if (scoreElement) {
+    scoreElement.textContent = "SCORE: " + currentScore;
+  }
+}
+
+// Step F: Evaluate difficulty progression and update speed & status message
+function updateDifficulty() {
+  const newDifficulty = getDifficulty(currentScore);
+  const newSpeed = getGameSpeed(newDifficulty);
+
+  const difficultyChanged = newDifficulty !== currentDifficulty;
+  currentDifficulty = newDifficulty;
+  gameSpeed = newSpeed;
+
+  if (difficultyChanged) {
+    console.log(
+      "DIFFICULTY LEVEL UP! Difficulty is now:", currentDifficulty.toUpperCase(),
+      "| Game Speed:", gameSpeed + " px/s"
+    );
+  }
+
+  // Step F: Display current difficulty in the status message while playing
+  if (statusMessage && gameState === "playing") {
+    statusMessage.textContent = "Run, Verse Man! [Difficulty: " + currentDifficulty.toUpperCase() + "]";
+  }
+}
+
+// Step B: Time-based score accumulation using delta time
+function updateScore(deltaTime) {
+  // Step B & I: Score must update only while the game is PLAYING
+  if (gameState !== "playing") {
+    return;
+  }
+
+  elapsedScoreTime += deltaTime;
+
+  let scoreChanged = false;
+
+  // Use a while loop to safely account for large delta-time intervals
+  while (elapsedScoreTime >= 1) {
+    currentScore += 1;
+    elapsedScoreTime -= 1;
+    scoreChanged = true;
+  }
+
+  // Avoid unnecessary DOM thrashing: Update display only when score changes
+  if (scoreChanged) {
+    renderScore();
+    updateDifficulty();
+  }
 }
 
 // ==========================================================================
@@ -338,9 +414,9 @@ function handleCollision() {
   // Safely stop the game loop
   stopGameLoop();
 
-  // Step H: Display Game Over message
+  // Step I: Display Game Over message with final score preserved
   if (statusMessage) {
-    statusMessage.textContent = "Game Over! You hit an obstacle.";
+    statusMessage.textContent = "Game Over! You hit an obstacle. Final Score: " + currentScore;
   }
 }
 
@@ -384,11 +460,19 @@ function gameLoop(currentTimestamp) {
     }
   }
 
-  // 3. Increment frame counter and log periodically
+  // 3. Update time-based score and difficulty progression (Day 15 Step G)
+  if (gameState === "playing") {
+    updateScore(deltaTime);
+  }
+
+  // 4. Increment frame counter and log periodically
   frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
       "Game Loop Active (" + gameState + ") | Frame:", frameCount,
+      "| Score:", currentScore,
+      "| Difficulty:", currentDifficulty.toUpperCase(),
+      "| Speed:", gameSpeed + " px/s",
       "| Player Height Above Ground:", Math.round(playerY) + "px",
       "| Grounded:", isPlayerOnGround
     );
@@ -455,15 +539,23 @@ function startGame() {
   hasCollided = false;
   isPlayerAlive = true;
 
-  // Step H: Display playing message
+  // Day 15 Step H: Reset score, accumulator, difficulty and speed on start
+  currentScore = 0;
+  elapsedScoreTime = 0;
+  currentDifficulty = getDifficulty(currentScore);
+  gameSpeed = getGameSpeed(currentDifficulty);
+  renderScore();
+
+  // Step F & H: Display playing message with current difficulty
   if (statusMessage) {
-    statusMessage.textContent = "Run, Verse Man!";
+    statusMessage.textContent = "Run, Verse Man! [Difficulty: " + currentDifficulty.toUpperCase() + "]";
   }
 
   // Start continuous loop
   startGameLoop();
 
   console.log("STATE TRANSITION: gameState is now 'playing'");
+  console.log("Updated Game Status -> Score:", currentScore, "| Difficulty:", currentDifficulty, "| Speed:", gameSpeed);
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 

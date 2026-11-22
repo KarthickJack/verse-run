@@ -133,12 +133,16 @@ body {
 
 /* Game Stage:
    The visual canvas representing the digital landscape runway.
-   Features a dark background, distinct border, and inner spacing. */
+   position: relative establishes the coordinate reference frame for all child elements.
+   overflow: hidden ensures moving elements never spill outside the arena boundary. */
 #game-stage {
+  position: relative;        /* Coordinate reference anchor for game objects */
+  width: 100%;
+  height: 220px;             /* Fixed arena height */
   background-color: #0a0f1d; /* Pitch dark runway sky */
   border: 2px solid #334155; /* Distinct arena boundary */
   border-radius: 8px;
-  padding: 20px;
+  overflow: hidden;          /* Clips any elements drifting outside the stage */
   margin-bottom: 20px;
 }
 

@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 4 — Day 16: Obstacle Movement and Continuous Respawning
+   Week 4 — Day 17: Multiple Obstacles and Difficulty Integration
    ========================================================================== */
 
 // External script connected successfully.
@@ -15,19 +15,22 @@ const gameTitle = "VERSE-RUN";       // String data type: Official title of the 
 const characterName = "Verse Man";   // String data type: Playable pixel runner hero
 
 // --------------------------------------------------------------------------
-// 2. Numerical Information (Variables: Numbers that will change)
+// 2. Numerical Information & Data Structures (Variables: Numbers & Collections)
 // --------------------------------------------------------------------------
 
-// Score tracking, elapsed time accumulation, runner physics and obstacle tracking (Day 15 & 16)
+// Score tracking, elapsed time accumulation, runner physics and obstacle management (Day 15, 16 & 17)
 let currentScore = 0;                // Number data type: Current distance/points in active run
 let highScore = 0;                   // Number data type: Highest score achieved in session
 let elapsedScoreTime = 0;            // Number data type: Accumulated delta time in seconds for scoring
 let currentDifficulty = "easy";      // String data type: Current difficulty tier ("easy" | "medium" | "hard")
 let gameSpeed = 200;                 // Number data type: World scrolling speed in px/s (Day 15 values: 200, 260, 320)
 
-// Obstacle dimensions and positioning (Day 16)
-const obstacleWidth = 90;            // Number data type: Width (px) matching CSS #obstacle width
-let obstacleX = 640;                 // Number data type: Obstacle X position (px) relative to #game-stage
+// Multiple obstacle management & dimensional constants (Day 17)
+const obstacleWidth = 90;            // Number data type: Standard width (px) matching CSS .obstacle width
+let activeObstacles = [];            // Array data type: Stores active obstacle objects [{ element, x, width }]
+let obstacleSpawnTimer = 0;          // Number data type: Elapsed delta time (seconds) since last spawn
+let nextSpawnInterval = 2.0;         // Number data type: Target interval (seconds) before next obstacle spawns
+const maxActiveObstacles = 4;        // Number data type: Maximum simultaneous obstacles on stage
 
 // --------------------------------------------------------------------------
 // 3. Game Status & Finite State Management (Day 14 Architecture)
@@ -58,7 +61,7 @@ console.log("Current Score:", currentScore);
 console.log("High Score:", highScore);
 console.log("Current Difficulty:", currentDifficulty);
 console.log("Game Speed:", gameSpeed);
-console.log("Obstacle X Position:", obstacleX);
+console.log("Active Obstacles Count:", activeObstacles.length);
 console.log("Is Game Running:", isGameRunning);
 console.log("Has Game Started:", hasGameStarted);
 console.log("Is Player Alive:", isPlayerAlive);
@@ -212,10 +215,10 @@ if (statusMessage) {
 }
 
 // ==========================================================================
-// OBSTACLE MOVEMENT & RESPAWN ENGINE (Day 16 Architecture)
+// MULTIPLE OBSTACLE & SPAWN ENGINE (Day 17 Architecture)
 // ==========================================================================
 
-console.log("--- DAY 16: OBSTACLE MOVEMENT & CONTINUOUS RESPAWNING ---");
+console.log("--- DAY 17: MULTIPLE OBSTACLES & DIFFICULTY INTEGRATION ---");
 
 // Helper: Calculate stage reference width for responsive boundary tracking
 function getStageWidth() {
@@ -224,54 +227,135 @@ function getStageWidth() {
     : 628;
 }
 
-// Step 2 & 3: Render obstacle X coordinate to DOM without CSS 'right' conflict
-function renderObstacle() {
-  if (obstacleElement) {
-    obstacleElement.style.right = "auto"; // Override CSS 'right' to ensure 'left' controls position
-    obstacleElement.style.left = obstacleX + "px";
+// Step 3: Dynamically create and register an obstacle entity
+function createObstacle(initialX) {
+  if (
+    !gameStageElement ||
+    typeof document.createElement !== "function" ||
+    typeof gameStageElement.appendChild !== "function"
+  ) {
+    return null;
   }
-}
 
-// Step 6: Reset obstacle to initial starting position at the right stage edge
-function resetObstacle() {
-  obstacleX = getStageWidth();
-  renderObstacle();
-}
-
-// Step 4: Respawn obstacle beyond right edge with a controlled random gap
-function respawnObstacle() {
   const stageWidth = getStageWidth();
+  const spawnX = typeof initialX === "number" ? initialX : stageWidth;
 
-  // Controlled variable gap: 150px to 350px provides ~0.7s to 1.5s reaction time
-  const minGap = 150;
-  const maxGap = 350;
-  const randomGap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+  // Create DOM element using existing .obstacle style
+  const element = document.createElement("div");
+  element.className = "obstacle";
+  element.textContent = "OBSTACLE";
+  element.style.right = "auto";
+  element.style.left = spawnX + "px";
 
-  obstacleX = stageWidth + randomGap;
-  console.log("Obstacle respawned! Positioned at X:", Math.round(obstacleX), "(Gap:", randomGap + "px)");
+  gameStageElement.appendChild(element);
+
+  // Register in active obstacles array
+  const obstacleObj = {
+    element: element,
+    x: spawnX,
+    width: obstacleWidth
+  };
+
+  activeObstacles.push(obstacleObj);
+  return obstacleObj;
 }
 
-// Step 3: Update obstacle horizontal movement using speed and deltaTime
-function updateObstacle(deltaTime) {
-  // Step 3 Guard: Movement must occur only while in "playing" state
+// Step 4 & 7: Update all active obstacles and remove off-screen ones
+function updateObstacles(deltaTime) {
   if (gameState !== "playing") {
     return;
   }
 
-  // Continuous movement: newPosition = oldPosition - speed * deltaTime
-  obstacleX -= gameSpeed * deltaTime;
+  // Iterate backwards so removing via splice does not disrupt loop indexing
+  for (let i = activeObstacles.length - 1; i >= 0; i--) {
+    const obstacle = activeObstacles[i];
 
-  // Step 4: Off-screen detection (check if entire obstacle width has left stage)
-  if (obstacleX < -obstacleWidth) {
-    respawnObstacle();
+    // Independent horizontal movement: newX = oldX - speed * deltaTime
+    obstacle.x -= gameSpeed * deltaTime;
+
+    // Step 7: Off-screen detection (completely exited left boundary: x < -width)
+    if (obstacle.x < -obstacle.width) {
+      if (
+        obstacle.element &&
+        obstacle.element.parentNode &&
+        typeof obstacle.element.parentNode.removeChild === "function"
+      ) {
+        obstacle.element.parentNode.removeChild(obstacle.element);
+      }
+      activeObstacles.splice(i, 1);
+    } else {
+      // Update DOM position
+      if (obstacle.element) {
+        obstacle.element.style.left = obstacle.x + "px";
+      }
+    }
   }
-
-  // Update DOM position
-  renderObstacle();
 }
 
-// Initialize obstacle position outside/near right edge while in READY state
-resetObstacle();
+// Step 8: Calculate difficulty-aware spawn interval
+function getRandomSpawnInterval(difficulty) {
+  const level = String(difficulty).toLowerCase();
+  let min = 2.0;
+  let max = 2.8;
+
+  if (level === "hard") {
+    min = 1.3;
+    max = 1.8;
+  } else if (level === "medium") {
+    min = 1.6;
+    max = 2.2;
+  }
+
+  return Math.random() * (max - min) + min;
+}
+
+// Step 5: Controlled spawn accumulator using deltaTime
+function updateObstacleSpawning(deltaTime) {
+  if (gameState !== "playing") {
+    return;
+  }
+
+  obstacleSpawnTimer += deltaTime;
+
+  if (obstacleSpawnTimer >= nextSpawnInterval) {
+    if (activeObstacles.length < maxActiveObstacles) {
+      const stageWidth = getStageWidth();
+      const lastObstacle = activeObstacles[activeObstacles.length - 1];
+
+      // Proximity guard: prevent overlapping spawns at right boundary
+      if (!lastObstacle || lastObstacle.x < stageWidth - 150) {
+        createObstacle(stageWidth);
+        obstacleSpawnTimer = 0;
+        nextSpawnInterval = getRandomSpawnInterval(currentDifficulty);
+      }
+    }
+  }
+}
+
+// Step 9: Clear all active obstacle elements and reset array
+function clearAllObstacles() {
+  for (let i = 0; i < activeObstacles.length; i++) {
+    const obs = activeObstacles[i];
+    if (
+      obs.element &&
+      obs.element.parentNode &&
+      typeof obs.element.parentNode.removeChild === "function"
+    ) {
+      obs.element.parentNode.removeChild(obs.element);
+    }
+  }
+  activeObstacles = [];
+
+  // Also remove placeholder obstacle from index.html if still present
+  const placeholderObstacle = document.getElementById("obstacle");
+  if (
+    placeholderObstacle &&
+    placeholderObstacle.parentNode &&
+    typeof placeholderObstacle.parentNode.removeChild === "function"
+  ) {
+    placeholderObstacle.parentNode.removeChild(placeholderObstacle);
+  }
+}
 
 // ==========================================================================
 // SCORE & DIFFICULTY PROGRESSION ENGINE (Day 15 Architecture)
@@ -525,28 +609,39 @@ function gameLoop(currentTimestamp) {
   // 1. Update player vertical physics
   updatePlayerPhysics(deltaTime);
 
-  // 2. Update obstacle position (Day 16 Step 5)
+  // 2. Update active obstacles horizontal movement & cleanup off-screen (Day 17 Step 4 & 7)
   if (gameState === "playing") {
-    updateObstacle(deltaTime);
+    updateObstacles(deltaTime);
   }
 
-  // 3. Perform collision detection during active gameplay
-  if (verseManElement && obstacleElement && gameState === "playing") {
-    const playerBox = getBoundingBox(verseManElement);
-    const obstacleBox = getBoundingBox(obstacleElement);
+  // 3. Update controlled obstacle spawning (Day 17 Step 5)
+  if (gameState === "playing") {
+    updateObstacleSpawning(deltaTime);
+  }
 
-    if (isColliding(playerBox, obstacleBox)) {
-      handleCollision();
-      return; // Stop processing further updates for this frame
+  // 4. Perform collision detection against all active obstacles (Day 17 Step 6)
+  if (verseManElement && gameState === "playing") {
+    const playerBox = getBoundingBox(verseManElement);
+
+    for (let i = 0; i < activeObstacles.length; i++) {
+      const obstacle = activeObstacles[i];
+      if (obstacle.element) {
+        const obstacleBox = getBoundingBox(obstacle.element);
+
+        if (isColliding(playerBox, obstacleBox)) {
+          handleCollision();
+          return; // Stop processing further updates for this frame
+        }
+      }
     }
   }
 
-  // 4. Update time-based score and difficulty progression (Day 15 Step G)
+  // 5. Update time-based score and difficulty progression (Day 15 Step G)
   if (gameState === "playing") {
     updateScore(deltaTime);
   }
 
-  // 5. Increment frame counter and log periodically
+  // 6. Increment frame counter and log periodically
   frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
@@ -554,13 +649,13 @@ function gameLoop(currentTimestamp) {
       "| Score:", currentScore,
       "| Difficulty:", currentDifficulty.toUpperCase(),
       "| Speed:", gameSpeed + " px/s",
-      "| Obstacle X:", Math.round(obstacleX) + "px",
+      "| Active Obstacles:", activeObstacles.length,
       "| Player Height Above Ground:", Math.round(playerY) + "px",
       "| Grounded:", isPlayerOnGround
     );
   }
 
-  // 6. Schedule next frame only if still actively playing
+  // 7. Schedule next frame only if still actively playing
   if (typeof requestAnimationFrame === "function" && gameState === "playing") {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
@@ -628,8 +723,11 @@ function startGame() {
   gameSpeed = getGameSpeed(currentDifficulty);
   renderScore();
 
-  // Day 16 Step 6: Reset obstacle position to starting right edge
-  resetObstacle();
+  // Day 17 Step 9: Reset obstacle collection, spawn timer, and spawn first obstacle
+  clearAllObstacles();
+  obstacleSpawnTimer = 0;
+  nextSpawnInterval = getRandomSpawnInterval(currentDifficulty);
+  createObstacle(getStageWidth());
 
   // Step F & H: Display playing message with current difficulty
   if (statusMessage) {
@@ -641,7 +739,7 @@ function startGame() {
 
   console.log("STATE TRANSITION: gameState is now 'playing'");
   console.log("Updated Game Status -> Score:", currentScore, "| Difficulty:", currentDifficulty, "| Speed:", gameSpeed);
-  console.log("Updated Game Status -> Obstacle X:", Math.round(obstacleX), "| hasGameStarted:", hasGameStarted);
+  console.log("Updated Game Status -> Active Obstacles:", activeObstacles.length, "| hasGameStarted:", hasGameStarted);
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 

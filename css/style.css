@@ -203,10 +203,11 @@ body {
   text-align: center;
 }
 
-/* Obstacle Placeholder:
-   A hazardous ground barrier placed ahead of Verse Man on the runway.
-   z-index: 3 places it on the interactive gameplay object layer. */
-#obstacle {
+/* Obstacle Styling:
+   Hazardous ground barriers placed ahead of Verse Man on the runway.
+   z-index: 3 places them on the interactive gameplay object layer. */
+#obstacle,
+.obstacle {
   position: absolute;        /* Positioned at exact coordinates on the stage */
   bottom: 35px;              /* Aligned with the top of the ground track */
   right: 80px;               /* Positioned ahead on the right side of the screen */

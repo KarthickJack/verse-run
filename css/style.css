@@ -126,3 +126,52 @@ body {
 #current-score-display {
   color: #38bdf8;      /* Electric cyan */
 }
+
+/* --------------------------------------------------------------------------
+   5. Game Area and Verse Man Placeholder
+   -------------------------------------------------------------------------- */
+
+/* Game Stage:
+   The visual canvas representing the digital landscape runway.
+   Features a dark background, distinct border, and inner spacing. */
+#game-stage {
+  background-color: #0a0f1d; /* Pitch dark runway sky */
+  border: 2px solid #334155; /* Distinct arena boundary */
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Verse Man Placeholder:
+   Our hero block. Styled with defined width and height, electric cyan fill,
+   a brighter highlight border, and centered bold text. */
+#verse-man {
+  width: 150px;
+  height: 70px;
+  background-color: #38bdf8; /* Electric cyan hero fill */
+  color: #0f172a;            /* High-contrast dark text */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  border: 2px solid #bae6fd; /* Light cyan highlight border */
+  border-radius: 6px;
+  padding: 12px 8px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 16px;
+}
+
+/* Ground Track:
+   A retro green runway strip beneath the character. */
+#ground {
+  background-color: #22c55e; /* Retro green runway */
+  color: #0f172a;            /* Dark text */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 4px;
+  border-top: 3px solid #86efac; /* Brighter green track line */
+}

@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 2 — Day 10: Random Numbers and Arrays
+   Week 3 — Day 11: Timers and Game Loops
    ========================================================================== */
 
 // External script connected successfully.
@@ -172,86 +172,24 @@ document.addEventListener("keyup", function (event) {
 });
 
 // ==========================================================================
-// OBSTACLE SELECTION PLAYGROUND (Day 10 Concepts & Exercises)
+// OBSTACLE SELECTION PLAYGROUND (Day 10 Preserved Data & Functions)
 // ==========================================================================
 
 console.log("--- DAY 10: OBSTACLE SELECTION PLAYGROUND ---");
 
-// --------------------------------------------------------------------------
-// Exercise 1: Create an Obstacle Array
-// --------------------------------------------------------------------------
-// An ordered list of obstacle names stored in a single array container
 let obstacles = ["Rock", "Small Cactus", "Large Cactus", "Wooden Crate"];
-console.log("Initial Obstacles Array:", obstacles);
-
-// --------------------------------------------------------------------------
-// Exercise 2: Access Elements Using Zero-Based Indexing
-// --------------------------------------------------------------------------
-console.log("First obstacle (index 0):", obstacles[0]);
-console.log("Second obstacle (index 1):", obstacles[1]);
-console.log("Third obstacle (index 2):", obstacles[2]);
-console.log("Fourth obstacle (index 3):", obstacles[3]);
-
-// --------------------------------------------------------------------------
-// Exercise 3: Find Array Length
-// --------------------------------------------------------------------------
-console.log("Total count of obstacles (.length):", obstacles.length); // 4
-console.log("Last valid index formula (length - 1):", obstacles.length - 1); // 3
-console.log("Last obstacle element:", obstacles[obstacles.length - 1]);
-
-// --------------------------------------------------------------------------
-// Exercise 4: Update an Element
-// --------------------------------------------------------------------------
-// Change "Wooden Crate" at index 3 to a modern retro obstacle: "Cyber Block"
 obstacles[3] = "Cyber Block";
-console.log("Obstacles array after updating index 3:", obstacles);
 
-// --------------------------------------------------------------------------
-// Exercise 5: Add and Remove Elements (push and pop)
-// --------------------------------------------------------------------------
-// push(): Appends an element to the end of the array
-obstacles.push("Energy Drone");
-console.log("After push('Energy Drone'):", obstacles);
-console.log("New length after push:", obstacles.length);
-
-// pop(): Removes the last element from the end of the array
-let removedObstacle = obstacles.pop();
-console.log("Removed obstacle with pop():", removedObstacle);
-console.log("After pop():", obstacles);
-
-// --------------------------------------------------------------------------
-// Exercise 6 & 7: Generating Random Numbers & Whole Integers
-// --------------------------------------------------------------------------
-// Math.random() generates a pseudo-random decimal number in the range [0, 1)
-let sampleRandomDecimal = Math.random();
-console.log("Sample Math.random() [0 to 0.999...]:", sampleRandomDecimal);
-
-// Math.floor() rounds a decimal down to the nearest integer
-// Combining them produces a whole integer index within [0, obstacles.length - 1]
-let sampleRandomIndex = Math.floor(Math.random() * obstacles.length);
-console.log("Sample whole integer index [0 to", obstacles.length - 1, "]:", sampleRandomIndex);
-
-// --------------------------------------------------------------------------
-// Exercise 8: Random Obstacle Selection Function
-// --------------------------------------------------------------------------
-// Returns a random obstacle string safely, checking for empty array bounds
 function getRandomObstacle() {
-  // Safety check: Handle empty array safely
   if (!obstacles || obstacles.length === 0) {
     return null;
   }
-
-  // Generate valid whole integer index: 0, 1, ..., (obstacles.length - 1)
   const randomIndex = Math.floor(Math.random() * obstacles.length);
   return obstacles[randomIndex];
 }
 
-// --------------------------------------------------------------------------
-// Exercise 9: Display the Selected Obstacle
-// --------------------------------------------------------------------------
 function showRandomObstacle() {
   const selectedObstacle = getRandomObstacle();
-
   if (selectedObstacle !== null) {
     console.log("Next Obstacle Approaching:", selectedObstacle);
     return selectedObstacle;
@@ -261,11 +199,124 @@ function showRandomObstacle() {
   }
 }
 
-// Test random selection manually several times
-console.log("--- TESTING RANDOM OBSTACLE SELECTION ---");
-console.log("Random Selection 1:", showRandomObstacle());
-console.log("Random Selection 2:", showRandomObstacle());
-console.log("Random Selection 3:", showRandomObstacle());
+// ==========================================================================
+// CONTINUOUS UPDATE PLAYGROUND (Day 11 Timers & Game Loop)
+// ==========================================================================
+
+console.log("--- DAY 11: CONTINUOUS UPDATE PLAYGROUND ---");
+
+// --------------------------------------------------------------------------
+// Exercise 1: Delayed Execution with setTimeout()
+// --------------------------------------------------------------------------
+console.log("Scheduling a 2-second delayed message with setTimeout()...");
+const delayedTimerId = setTimeout(function () {
+  console.log("setTimeout Callback: 2 seconds elapsed! Asynchronous operation completed.");
+}, 2000);
+console.log("Notice: Code immediately continues executing after setTimeout without blocking!");
+
+// --------------------------------------------------------------------------
+// Exercise 2 & 3: Repeated Execution (setInterval) & Stopping (clearInterval)
+// --------------------------------------------------------------------------
+let countdownSeconds = 0;
+console.log("Starting a 1-second interval counter with setInterval()...");
+
+const countdownIntervalId = setInterval(function () {
+  countdownSeconds++;
+  console.log("setInterval tick: Elapsed seconds =", countdownSeconds);
+
+  // Stop the interval after 3 ticks to demonstrate clearInterval()
+  if (countdownSeconds >= 3) {
+    clearInterval(countdownIntervalId);
+    console.log("clearInterval() invoked: Stopped repeating interval timer with ID:", countdownIntervalId);
+  }
+}, 1000);
+
+// --------------------------------------------------------------------------
+// Exercise 4: Canceling a Timeout with clearTimeout()
+// --------------------------------------------------------------------------
+const canceledTimeoutId = setTimeout(function () {
+  console.log("This message should NEVER appear because it will be canceled!");
+}, 5000);
+
+clearTimeout(canceledTimeoutId);
+console.log("clearTimeout() invoked: Successfully canceled pending timeout with ID:", canceledTimeoutId);
+
+// --------------------------------------------------------------------------
+// Exercise 5: Controlled requestAnimationFrame() Demo
+// --------------------------------------------------------------------------
+let singleFrameStep = 0;
+function singleFrameDemo() {
+  singleFrameStep++;
+  console.log("Single animation frame repaint executed. Step:", singleFrameStep);
+  // Intentionally does NOT recurse indefinitely — single demonstration frame
+}
+if (typeof requestAnimationFrame === "function") {
+  requestAnimationFrame(singleFrameDemo);
+}
+
+// --------------------------------------------------------------------------
+// Exercise 6: VERSE-RUN Core Game Loop Engine
+// --------------------------------------------------------------------------
+
+// Game loop control variables
+let isLoopRunning = false;        // Boolean flag: True while game loop is active
+let animationFrameId = null;      // Holds request ID from requestAnimationFrame for cancellation
+let frameCount = 0;               // Tracks total animation frames elapsed during active run
+
+// The core loop callback
+function gameLoop() {
+  // Guard check: Stop execution if loop was halted
+  if (!isLoopRunning) {
+    return;
+  }
+
+  // Increment total frame counter
+  frameCount++;
+
+  // Periodically log progress (every 60 frames = approx once per second at 60fps)
+  // Prevents console flooding while confirming continuous updates
+  if (frameCount % 60 === 0) {
+    console.log("VERSE-RUN Game Loop Active — Frame Count:", frameCount);
+  }
+
+  // Request next screen repaint frame
+  if (typeof requestAnimationFrame === "function") {
+    animationFrameId = requestAnimationFrame(gameLoop);
+  }
+}
+
+// Function to start the continuous game loop safely
+function startGameLoop() {
+  // Prevent duplicate concurrent game loops if clicked repeatedly
+  if (isLoopRunning) {
+    console.log("Game loop is already running; duplicate start ignored.");
+    return;
+  }
+
+  isLoopRunning = true;
+  console.log("Starting VERSE-RUN Game Loop...");
+
+  if (typeof requestAnimationFrame === "function") {
+    animationFrameId = requestAnimationFrame(gameLoop);
+  }
+}
+
+// Function to stop the game loop cleanly
+function stopGameLoop() {
+  if (!isLoopRunning) {
+    console.log("Game loop is not currently active.");
+    return;
+  }
+
+  isLoopRunning = false;
+
+  if (animationFrameId !== null && typeof cancelAnimationFrame === "function") {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  console.log("VERSE-RUN Game Loop stopped at frame:", frameCount);
+}
 
 // --------------------------------------------------------------------------
 // 5. DOM Element Selection & Displaying Game Info
@@ -285,7 +336,7 @@ scoreElement.textContent = "SCORE: " + currentScore;
 highScoreElement.textContent = "HI: " + highScore;
 
 // --------------------------------------------------------------------------
-// 6. Start Button Interaction (Day 5 & Day 8 Preserved Named Function)
+// 6. Start Button Interaction (Day 5, 8 & 11 Integration)
 // --------------------------------------------------------------------------
 
 // Named function: Contains the clean logic triggered when the player clicks Start
@@ -296,8 +347,11 @@ function startGame() {
   hasGameStarted = true;
   isGameRunning = true;
 
-  // Display welcome/ready message in status area (does NOT start actual gameplay loop)
+  // Display welcome/ready message in status area
   statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
+
+  // Start the continuous game loop
+  startGameLoop();
 
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }

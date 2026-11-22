@@ -209,3 +209,56 @@ body {
 #start-btn:hover {
   background-color: #16a34a; /* Darker green shade on hover */
 }
+
+/* --------------------------------------------------------------------------
+   7. Instructions and Footer
+   -------------------------------------------------------------------------- */
+
+/* Instructions Card:
+   Styled as an informative card within the console wrapper. */
+#instructions-section {
+  background-color: #0a0f1d; /* Matches the dark inset areas */
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+/* Instructions Heading:
+   Uses the retro monospace font with cyan accent. */
+#instructions-section h2 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  color: #38bdf8;
+  margin-bottom: 12px;
+}
+
+/* Instructions List:
+   Ensures bullet points are neatly indented and text is readable. */
+#instructions-section ul {
+  padding-left: 20px;
+  color: #94a3b8; /* Muted slate gray */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* List Items:
+   Provides small vertical spacing between instruction points. */
+#instructions-section li {
+  margin-bottom: 6px;
+}
+
+/* Highlighted Terms:
+   Brings keys (Spacebar, Up Arrow) forward in crisp white text. */
+#instructions-section strong {
+  color: #f8fafc;
+}
+
+/* Game Footer:
+   Discreet, centered copyright and educational notice. */
+#game-footer {
+  text-align: center;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  font-size: 13px;
+  color: #64748b; /* Subtle muted gray */
+}

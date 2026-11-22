@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VERSE-RUN — C-VERSE Endless Runner</title>
+  <!-- Link to external stylesheet (styling begins on Day 3) -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- App Container: Groups the entire web page content -->
+  <div id="app-container">
+
+    <!-- 1. Header Section: Title and Game Description -->
+    <header id="game-header">
+      <h1>VERSE-RUN</h1>
+      <p class="game-description">
+        Guide Verse Man through an endless digital world. Leap over obstacles, survive the run, and set a high score!
+      </p>
+    </header>
+
+    <!-- Main Game Wrapper: Groups the core interactive experience -->
+    <main id="game-wrapper">
+
+      <!-- 2. Heads-Up Display: Score Placeholders -->
+      <div id="hud-container">
+        <div id="high-score-display">HI: 00000</div>
+        <div id="current-score-display">SCORE: 00000</div>
+      </div>
+
+      <!-- 3. Main Game Area: The stage where gameplay will happen -->
+      <div id="game-stage">
+        <!-- Player Character Placeholder -->
+        <div id="verse-man">Verse Man (Player)</div>
+
+        <!-- Ground Track Placeholder -->
+        <div id="ground">Ground Track</div>
+      </div>
+
+      <!-- 4. Game Controls: Start Game Button (Non-functional on Day 2) -->
+      <div id="controls-container">
+        <button id="start-btn" type="button">Start Game</button>
+      </div>
+
+      <!-- 5. Instructions Section: How to play the game -->
+      <section id="instructions-section">
+        <h2>How to Play</h2>
+        <ul>
+          <li>Press <strong>Spacebar</strong> or <strong>Up Arrow</strong> to jump over obstacles.</li>
+          <li>Avoid crashing into ground barriers.</li>
+          <li>Survive as long as possible to reach the top score!</li>
+        </ul>
+      </section>
+
+    </main>
+
+    <!-- 6. Footer Section: C-VERSE Branding and Educational Notice -->
+    <footer id="game-footer">
+      <p>&copy; 2026 C-VERSE. Built for learning web development.</p>
+    </footer>
+
+  </div>
+
+</body>
+</html>

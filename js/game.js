@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 2 — Day 7: JavaScript Operators and Conditional Statements
+   Week 2 — Day 8: Functions and Reusable Logic
    ========================================================================== */
 
 // External script connected successfully.
@@ -53,154 +53,109 @@ console.log("Is Player On Ground:", isPlayerOnGround);
 console.log("Game Over Message:", gameOverMessage);
 
 // ==========================================================================
-// GAME RULES PLAYGROUND (Day 7 Concepts)
+// GAME RULES PLAYGROUND (Day 7 Preserved Examples)
 // ==========================================================================
 
-// --------------------------------------------------------------------------
-// Part A: Arithmetic and Assignment Operators
-// --------------------------------------------------------------------------
+console.log("--- DAY 7 RULES PLAYGROUND ---");
 
-console.log("--- PART A: ARITHMETIC & ASSIGNMENT ---");
-
-// Arithmetic operators (+, -, *, /, %)
+// Arithmetic and Assignment
 let bonusPoints = 50;
-let totalScore = currentScore + bonusPoints; // Addition
-console.log("Addition (currentScore + bonusPoints):", totalScore);
-
+let totalScore = currentScore + bonusPoints;
 let penalty = 15;
-let reducedScore = totalScore - penalty;     // Subtraction
-console.log("Subtraction (totalScore - penalty):", reducedScore);
+let reducedScore = totalScore - penalty;
+let speedBoost = gameSpeed * 2;
+let halfSpeed = speedBoost / 2;
+let milestoneRemainder = 250 % 100;
 
-let speedBoost = gameSpeed * 2;              // Multiplication
-console.log("Multiplication (gameSpeed * 2):", speedBoost);
-
-let halfSpeed = speedBoost / 2;              // Division
-console.log("Division (speedBoost / 2):", halfSpeed);
-
-let milestoneRemainder = 250 % 100;          // Modulus (remainder after division)
-console.log("Modulus (250 % 100):", milestoneRemainder);
-
-// Assignment operators (=, +=, -=, *=, /=)
 let testScore = 100;
-console.log("Starting testScore:", testScore);
+testScore += 25;
+testScore -= 10;
+testScore *= 2;
+testScore /= 4;
 
-testScore += 25; // Equivalent to: testScore = testScore + 25
-console.log("After testScore += 25:", testScore);
-
-testScore -= 10; // Equivalent to: testScore = testScore - 10
-console.log("After testScore -= 10:", testScore);
-
-testScore *= 2;  // Equivalent to: testScore = testScore * 2
-console.log("After testScore *= 2:", testScore);
-
-testScore /= 4;  // Equivalent to: testScore = testScore / 4
-console.log("After testScore /= 4:", testScore);
-
-// --------------------------------------------------------------------------
-// Part B: Comparison Operators (Relational and Equality)
-// --------------------------------------------------------------------------
-
-console.log("--- PART B: COMPARISONS ---");
-
-// Greater than (>) and Less than (<)
+// Comparisons & Equality
 let isScoreBeatingHigh = currentScore > highScore;
-console.log("Is currentScore > highScore?:", isScoreBeatingHigh);
-
 let isSpeedBelowThreshold = gameSpeed < 10;
-console.log("Is gameSpeed < 10 (safe speed)?:", isSpeedBelowThreshold);
-
-// Greater than or equal (>=) and Less than or equal (<=)
 let isPassingScore = currentScore >= 0;
-console.log("Is currentScore >= 0?:", isPassingScore);
-
 let isSpeedMaxCap = gameSpeed <= 5;
-console.log("Is gameSpeed <= 5?:", isSpeedMaxCap);
 
-// Equality: Loose (==) vs Strict (===)
-// Loose equality (==) coerces types before comparing:
-console.log("Loose equality ('5' == 5):", "5" == 5);       // true (string converted to number)
-
-// Strict equality (===) checks value AND data type without coercion:
-console.log("Strict equality ('5' === 5):", "5" === 5);     // false (string !== number)
-
-// Inequality: Loose (!=) vs Strict (!==)
-console.log("Loose inequality ('5' != 5):", "5" != 5);     // false (coerced, treated as equal)
-console.log("Strict inequality ('5' !== 5):", "5" !== 5);   // true (different data types)
-
-// --------------------------------------------------------------------------
-// Part C: Logical Operators (&&, ||, !)
-// --------------------------------------------------------------------------
-
-console.log("--- PART C: LOGICAL OPERATORS ---");
-
-// 1. Logical AND (&&): True ONLY if BOTH operands are true
+// Logical Operators
 let isActivelySurviving = isGameRunning && isPlayerAlive;
-console.log("Running AND Alive (isGameRunning && isPlayerAlive):", isActivelySurviving);
-
-// 2. Logical OR (||): True if AT LEAST ONE operand is true
 let isReadyOrWaiting = hasGameStarted || !isGameRunning;
-console.log("Started OR Waiting (hasGameStarted || !isGameRunning):", isReadyOrWaiting);
-
-// 3. Logical NOT (!): Inverts the boolean truth value
 let isGameIdle = !isGameRunning;
-console.log("Game is NOT running (!isGameRunning):", isGameIdle);
+
+// ==========================================================================
+// FUNCTION PLAYGROUND (Day 8 Concepts & Exercises)
+// ==========================================================================
+
+console.log("--- DAY 8: FUNCTION PLAYGROUND ---");
 
 // --------------------------------------------------------------------------
-// Part D: Conditional Statements (if, else, else if, nested conditions)
+// Exercise 1: Welcome Message Function
 // --------------------------------------------------------------------------
-
-console.log("--- PART D: CONDITIONAL STATEMENTS ---");
-
-// Example 1: High-score checking
-let sampleScore = 150;
-let sampleHighScore = 100;
-console.log("Evaluating High Score (Score:", sampleScore, "| Record:", sampleHighScore, "):");
-if (sampleScore > sampleHighScore) {
-  console.log("High Score Result: NEW RECORD! Verse Man reached a new peak.");
-} else {
-  console.log("High Score Result: Keep running! Previous record remains unbroken.");
+// A zero-parameter function that outputs and returns a welcome greeting.
+function showWelcomeMessage() {
+  const welcomeText = "Welcome to " + gameTitle + "!";
+  console.log(welcomeText);
+  return welcomeText;
 }
 
-// Example 2: Game readiness
-console.log("Evaluating Game Readiness (hasGameStarted =", hasGameStarted, "):");
-if (hasGameStarted) {
-  console.log("Readiness Result: Game is active! Obstacles are advancing.");
-} else {
-  console.log("Readiness Result: Game is on standby. Press Start Game to begin.");
+// --------------------------------------------------------------------------
+// Exercise 2: Bonus Calculator Function
+// --------------------------------------------------------------------------
+// Accepts a numerical points value, adds 50 bonus points, and returns the sum.
+function calculateBonus(points) {
+  const bonus = 50; // Local variable scoped only inside calculateBonus
+  const totalWithBonus = points + bonus;
+  return totalWithBonus;
 }
 
-// Example 3: Difficulty classification based on score (else if ladder)
-let evaluationScore = 320;
-console.log("Evaluating Difficulty Classification for score:", evaluationScore);
-if (evaluationScore >= 500) {
-  console.log("Difficulty Result: HARD — Digital horizon accelerating at maximum!");
-} else if (evaluationScore >= 200) {
-  console.log("Difficulty Result: MEDIUM — Speed increasing, watch for cyber blocks.");
-} else {
-  console.log("Difficulty Result: EASY — Standard cruising speed.");
-}
-
-// Example 4: Player jump permission as a hypothetical rule
-// Note: We only calculate and display permission. No actual controls or movement are attached.
-let hypotheticalGameRunning = true;
-let hypotheticalPlayerOnGround = true;
-let hypotheticalJumpAllowed = false;
-
-console.log("Evaluating Jump Permission (Running:", hypotheticalGameRunning, "| On Ground:", hypotheticalPlayerOnGround, "):");
-if (hypotheticalGameRunning) {
-  // Nested condition: Player must also be on the ground to jump
-  if (hypotheticalPlayerOnGround) {
-    hypotheticalJumpAllowed = true;
-    console.log("Jump Permission Result: ALLOWED — Verse Man is grounded and running.");
+// --------------------------------------------------------------------------
+// Exercise 3: High-Score Checker Function
+// --------------------------------------------------------------------------
+// Compares two numerical values and returns an informative string message.
+function checkHighScore(score, recordHighScore) {
+  if (score > recordHighScore) {
+    return "New record achieved! High score beaten.";
+  } else if (score === recordHighScore) {
+    return "Tied with the current high score!";
   } else {
-    hypotheticalJumpAllowed = false;
-    console.log("Jump Permission Result: DENIED — Verse Man is already airborne.");
+    return "Keep running! High score remains unbeaten.";
   }
-} else {
-  hypotheticalJumpAllowed = false;
-  console.log("Jump Permission Result: DENIED — Game is paused or has not started.");
 }
-console.log("Hypothetical Jump Allowed Flag:", hypotheticalJumpAllowed);
+
+// --------------------------------------------------------------------------
+// Exercise 4: Difficulty Calculator Function
+// --------------------------------------------------------------------------
+// Evaluates score against thresholds and returns difficulty tier.
+// Rules: Below 100 -> Easy | 100 to 299 -> Medium | 300 and above -> Hard
+function getDifficulty(score) {
+  if (score >= 300) {
+    return "Hard";
+  } else if (score >= 100) {
+    return "Medium";
+  } else {
+    return "Easy";
+  }
+}
+
+// --------------------------------------------------------------------------
+// Testing & Demonstrating Function Invocations
+// --------------------------------------------------------------------------
+
+console.log("Invoking showWelcomeMessage():");
+showWelcomeMessage();
+
+console.log("Invoking calculateBonus(100):", calculateBonus(100)); // Expected: 150
+console.log("Invoking calculateBonus(20):", calculateBonus(20));   // Expected: 70
+
+console.log("Invoking checkHighScore(250, 200):", checkHighScore(250, 200)); // New record
+console.log("Invoking checkHighScore(150, 200):", checkHighScore(150, 200)); // Unbeaten
+console.log("Invoking checkHighScore(200, 200):", checkHighScore(200, 200)); // Tied
+
+console.log("Invoking getDifficulty(50):", getDifficulty(50));   // Easy
+console.log("Invoking getDifficulty(150):", getDifficulty(150)); // Medium
+console.log("Invoking getDifficulty(450):", getDifficulty(450)); // Hard
 
 // --------------------------------------------------------------------------
 // 5. DOM Element Selection & Displaying Game Info
@@ -220,23 +175,22 @@ scoreElement.textContent = "SCORE: " + currentScore;
 highScoreElement.textContent = "HI: " + highScore;
 
 // --------------------------------------------------------------------------
-// 6. Browser Events & User Interaction (Preserving Day 5 Button Click)
+// Exercise 5: Organise the Start Button Interaction with a Named Function
 // --------------------------------------------------------------------------
 
-// Add a click event listener to the Start Game button
-startButton.addEventListener("click", function () {
-  console.log("Start Game button clicked!");
+// Named function: Contains the clean logic triggered when the player clicks Start
+function startGame() {
+  console.log("Start Game button clicked! (startGame function invoked)");
 
-  // Update status variables when game begins
+  // Update status flags
   hasGameStarted = true;
   isGameRunning = true;
 
-  // Use a conditional to format status message
-  if (hasGameStarted) {
-    statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
-  } else {
-    statusMessage.textContent = "Press Start Game to begin!";
-  }
+  // Display welcome/ready message in status area (does NOT start actual gameplay loop)
+  statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
 
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
-});
+}
+
+// Connect the named function to the Start Game button click event
+startButton.addEventListener("click", startGame);

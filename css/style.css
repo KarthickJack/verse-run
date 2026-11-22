@@ -85,3 +85,44 @@ body {
   max-width: 500px;
   margin: 0 auto; /* Keeps the text block centered */
 }
+
+/* --------------------------------------------------------------------------
+   4. Score Display (Heads-Up Display / HUD)
+   -------------------------------------------------------------------------- */
+
+/* HUD Container:
+   Dark score panel situated above the game stage.
+   Right-aligns the score counters just like a classic arcade screen. */
+#hud-container {
+  background-color: #0a0f1d; /* Deep stage dark */
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+/* Common Score Counter Styles:
+   Uses a grouped selector to apply shared retro typography without repeating code. */
+#high-score-display,
+#current-score-display {
+  display: inline-block;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  padding: 4px 8px;
+}
+
+/* High Score Display:
+   Highlighted in arcade gold for prestige. */
+#high-score-display {
+  color: #f59e0b;      /* Arcade gold */
+  margin-right: 12px;  /* Clearance separating it from the current score */
+}
+
+/* Current Score Display:
+   Highlighted in electric cyan for active gameplay clarity. */
+#current-score-display {
+  color: #38bdf8;      /* Electric cyan */
+}

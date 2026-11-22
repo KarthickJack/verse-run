@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 3 — Day 15: Score and Difficulty
+   Week 4 — Day 16: Obstacle Movement and Continuous Respawning
    ========================================================================== */
 
 // External script connected successfully.
@@ -18,12 +18,16 @@ const characterName = "Verse Man";   // String data type: Playable pixel runner 
 // 2. Numerical Information (Variables: Numbers that will change)
 // --------------------------------------------------------------------------
 
-// Score tracking, elapsed time accumulation and runner physics (Day 15)
+// Score tracking, elapsed time accumulation, runner physics and obstacle tracking (Day 15 & 16)
 let currentScore = 0;                // Number data type: Current distance/points in active run
 let highScore = 0;                   // Number data type: Highest score achieved in session
 let elapsedScoreTime = 0;            // Number data type: Accumulated delta time in seconds for scoring
 let currentDifficulty = "easy";      // String data type: Current difficulty tier ("easy" | "medium" | "hard")
 let gameSpeed = 200;                 // Number data type: World scrolling speed in px/s (Day 15 values: 200, 260, 320)
+
+// Obstacle dimensions and positioning (Day 16)
+const obstacleWidth = 90;            // Number data type: Width (px) matching CSS #obstacle width
+let obstacleX = 640;                 // Number data type: Obstacle X position (px) relative to #game-stage
 
 // --------------------------------------------------------------------------
 // 3. Game Status & Finite State Management (Day 14 Architecture)
@@ -54,6 +58,7 @@ console.log("Current Score:", currentScore);
 console.log("High Score:", highScore);
 console.log("Current Difficulty:", currentDifficulty);
 console.log("Game Speed:", gameSpeed);
+console.log("Obstacle X Position:", obstacleX);
 console.log("Is Game Running:", isGameRunning);
 console.log("Has Game Started:", hasGameStarted);
 console.log("Is Player Alive:", isPlayerAlive);
@@ -188,6 +193,7 @@ clearTimeout(canceledTimeoutId);
 // ==========================================================================
 
 // Selected existing DOM elements
+const gameStageElement = document.getElementById("game-stage");
 const verseManElement = document.getElementById("verse-man");
 const obstacleElement = document.getElementById("obstacle");
 const titleElement = document.querySelector("#game-header h1");
@@ -204,6 +210,68 @@ highScoreElement.textContent = "HI: " + highScore;
 if (statusMessage) {
   statusMessage.textContent = "Press Start Game to begin!";
 }
+
+// ==========================================================================
+// OBSTACLE MOVEMENT & RESPAWN ENGINE (Day 16 Architecture)
+// ==========================================================================
+
+console.log("--- DAY 16: OBSTACLE MOVEMENT & CONTINUOUS RESPAWNING ---");
+
+// Helper: Calculate stage reference width for responsive boundary tracking
+function getStageWidth() {
+  return gameStageElement && gameStageElement.clientWidth > 0
+    ? gameStageElement.clientWidth
+    : 628;
+}
+
+// Step 2 & 3: Render obstacle X coordinate to DOM without CSS 'right' conflict
+function renderObstacle() {
+  if (obstacleElement) {
+    obstacleElement.style.right = "auto"; // Override CSS 'right' to ensure 'left' controls position
+    obstacleElement.style.left = obstacleX + "px";
+  }
+}
+
+// Step 6: Reset obstacle to initial starting position at the right stage edge
+function resetObstacle() {
+  obstacleX = getStageWidth();
+  renderObstacle();
+}
+
+// Step 4: Respawn obstacle beyond right edge with a controlled random gap
+function respawnObstacle() {
+  const stageWidth = getStageWidth();
+
+  // Controlled variable gap: 150px to 350px provides ~0.7s to 1.5s reaction time
+  const minGap = 150;
+  const maxGap = 350;
+  const randomGap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+
+  obstacleX = stageWidth + randomGap;
+  console.log("Obstacle respawned! Positioned at X:", Math.round(obstacleX), "(Gap:", randomGap + "px)");
+}
+
+// Step 3: Update obstacle horizontal movement using speed and deltaTime
+function updateObstacle(deltaTime) {
+  // Step 3 Guard: Movement must occur only while in "playing" state
+  if (gameState !== "playing") {
+    return;
+  }
+
+  // Continuous movement: newPosition = oldPosition - speed * deltaTime
+  obstacleX -= gameSpeed * deltaTime;
+
+  // Step 4: Off-screen detection (check if entire obstacle width has left stage)
+  if (obstacleX < -obstacleWidth) {
+    respawnObstacle();
+  }
+
+  // Update DOM position
+  renderObstacle();
+}
+
+// Initialize obstacle position outside/near right edge while in READY state
+resetObstacle();
 
 // ==========================================================================
 // SCORE & DIFFICULTY PROGRESSION ENGINE (Day 15 Architecture)
@@ -457,7 +525,12 @@ function gameLoop(currentTimestamp) {
   // 1. Update player vertical physics
   updatePlayerPhysics(deltaTime);
 
-  // 2. Perform collision detection during active gameplay
+  // 2. Update obstacle position (Day 16 Step 5)
+  if (gameState === "playing") {
+    updateObstacle(deltaTime);
+  }
+
+  // 3. Perform collision detection during active gameplay
   if (verseManElement && obstacleElement && gameState === "playing") {
     const playerBox = getBoundingBox(verseManElement);
     const obstacleBox = getBoundingBox(obstacleElement);
@@ -468,12 +541,12 @@ function gameLoop(currentTimestamp) {
     }
   }
 
-  // 3. Update time-based score and difficulty progression (Day 15 Step G)
+  // 4. Update time-based score and difficulty progression (Day 15 Step G)
   if (gameState === "playing") {
     updateScore(deltaTime);
   }
 
-  // 4. Increment frame counter and log periodically
+  // 5. Increment frame counter and log periodically
   frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
@@ -481,12 +554,13 @@ function gameLoop(currentTimestamp) {
       "| Score:", currentScore,
       "| Difficulty:", currentDifficulty.toUpperCase(),
       "| Speed:", gameSpeed + " px/s",
+      "| Obstacle X:", Math.round(obstacleX) + "px",
       "| Player Height Above Ground:", Math.round(playerY) + "px",
       "| Grounded:", isPlayerOnGround
     );
   }
 
-  // Schedule next frame only if still actively playing
+  // 6. Schedule next frame only if still actively playing
   if (typeof requestAnimationFrame === "function" && gameState === "playing") {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
@@ -554,6 +628,9 @@ function startGame() {
   gameSpeed = getGameSpeed(currentDifficulty);
   renderScore();
 
+  // Day 16 Step 6: Reset obstacle position to starting right edge
+  resetObstacle();
+
   // Step F & H: Display playing message with current difficulty
   if (statusMessage) {
     statusMessage.textContent = "Run, Verse Man! [Difficulty: " + currentDifficulty.toUpperCase() + "]";
@@ -564,6 +641,7 @@ function startGame() {
 
   console.log("STATE TRANSITION: gameState is now 'playing'");
   console.log("Updated Game Status -> Score:", currentScore, "| Difficulty:", currentDifficulty, "| Speed:", gameSpeed);
+  console.log("Updated Game Status -> Obstacle X:", Math.round(obstacleX), "| hasGameStarted:", hasGameStarted);
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 

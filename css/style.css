@@ -51,3 +51,37 @@ body {
   margin-top: 20px;
   margin-bottom: 24px;
 }
+
+/* --------------------------------------------------------------------------
+   3. Game Title and Text
+   -------------------------------------------------------------------------- */
+
+/* Game Header:
+   Centers the title and introductory description. */
+#game-header {
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Main Game Title:
+   Uses a retro monospace font stack, cyan color, and prominent sizing. */
+#game-header h1 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #38bdf8; /* Vibrant cyan */
+  margin-bottom: 8px;
+}
+
+/* Game Description:
+   Demonstrates a class selector (.game-description).
+   Styled with a softer text tone and balanced line height for easy reading. */
+.game-description {
+  font-size: 15px;
+  color: #94a3b8; /* Muted slate gray */
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto; /* Keeps the text block centered */
+}

@@ -167,6 +167,28 @@ body {
   text-align: center;
 }
 
+/* Obstacle Placeholder:
+   A hazardous ground barrier placed ahead of Verse Man on the runway.
+   z-index: 3 places it on the interactive gameplay object layer. */
+#obstacle {
+  position: absolute;        /* Positioned at exact coordinates on the stage */
+  bottom: 35px;              /* Aligned with the top of the ground track */
+  right: 80px;               /* Positioned ahead on the right side of the screen */
+  z-index: 3;                /* Game object layer */
+  width: 90px;
+  height: 50px;
+  background-color: #ef4444; /* Retro arcade warning red */
+  color: #ffffff;            /* Crisp white text */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: 2px solid #fca5a5; /* Lighter red hazard border */
+  border-radius: 4px;
+  padding: 6px 4px;
+  text-align: center;
+}
+
 /* Ground Track:
    A retro green runway strip beneath the character. */
 #ground {

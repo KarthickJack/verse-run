@@ -175,3 +175,37 @@ body {
   border-radius: 4px;
   border-top: 3px solid #86efac; /* Brighter green track line */
 }
+
+/* --------------------------------------------------------------------------
+   6. Start Game Button
+   -------------------------------------------------------------------------- */
+
+/* Controls Container:
+   Centers the interactive game action buttons. */
+#controls-container {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+/* Start Game Button:
+   A prominent, tactile arcade action button.
+   Demonstrates padding, border-radius, font properties, and cursor pointer. */
+#start-btn {
+  background-color: #22c55e; /* Vibrant retro green */
+  color: #0f172a;            /* Dark high-contrast text */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: 2px solid #86efac; /* Lighter green border highlight */
+  border-radius: 8px;
+  padding: 12px 32px;
+  cursor: pointer;           /* Changes mouse cursor to a clicking hand */
+}
+
+/* Button Hover State:
+   Gives immediate visual feedback when the user hovers over the button. */
+#start-btn:hover {
+  background-color: #16a34a; /* Darker green shade on hover */
+}

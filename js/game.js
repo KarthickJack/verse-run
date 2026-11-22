@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 3 — Day 12: Player Movement and Position
+   Week 3 — Day 13: Collision Detection
    ========================================================================== */
 
 // External script connected successfully.
@@ -35,6 +35,7 @@ let gameOverMessage = null;          // Null data type: Intentionally empty unti
 // State flags for game rules evaluation
 let isPlayerAlive = true;            // Boolean data type: True while player has not crashed
 let isPlayerOnGround = true;         // Boolean data type: True when runner rests on the track
+let hasCollided = false;             // Boolean data type: True when player has collided with an obstacle
 
 // --------------------------------------------------------------------------
 // 4. Console Verification: Initial State
@@ -175,15 +176,28 @@ const canceledTimeoutId = setTimeout(function () {
 clearTimeout(canceledTimeoutId);
 
 // ==========================================================================
-// PLAYER PHYSICS & MOVEMENT (Day 12 Concepts & Engine)
+// DOM ELEMENT SELECTION (Player, Obstacle & HUD)
+// ==========================================================================
+
+// Selected existing DOM elements
+const verseManElement = document.getElementById("verse-man");
+const obstacleElement = document.getElementById("obstacle");
+const titleElement = document.querySelector("#game-header h1");
+const scoreElement = document.getElementById("current-score-display");
+const highScoreElement = document.getElementById("high-score-display");
+const startButton = document.getElementById("start-btn");
+const statusMessage = document.getElementById("game-status-message");
+
+// Display initial game values on the existing web page HUD
+scoreElement.textContent = "SCORE: " + currentScore;
+highScoreElement.textContent = "HI: " + highScore;
+
+// ==========================================================================
+// PLAYER PHYSICS & MOVEMENT (Day 12 Preserved Engine)
 // ==========================================================================
 
 console.log("--- DAY 12: PLAYER PHYSICS & MOVEMENT ---");
 
-// Exercise 1: Identify existing DOM player element
-const verseManElement = document.getElementById("verse-man");
-
-// Exercise 2 & 4: Establish player position, physics and ground baseline
 // CSS baseline: #verse-man { bottom: 35px; } resting on 35px ground track
 const groundBaseline = 35;       // Constant: CSS bottom offset (px) for ground level
 let playerY = 0;                 // Number: Vertical height above ground (0 = grounded)
@@ -193,46 +207,35 @@ let jumpStrength = 600;          // Number (px/s): Initial upward impulse when j
 
 let lastFrameTimestamp = null;   // Tracks previous frame timestamp for delta time calculation
 
-// Exercise 5: Implement player physics update function
-// Receives elapsed time in seconds (deltaTime) to ensure framerate-independent physics
+// Updates player vertical position and applies gravity over elapsed time
 function updatePlayerPhysics(deltaTime) {
-  // 1. If airborne or moving, apply gravity to vertical velocity
   if (!isPlayerOnGround || playerY > 0 || verticalVelocity !== 0) {
-    // Gravity pulls downward (increases positive vertical velocity)
     verticalVelocity += gravity * deltaTime;
-
-    // Update vertical position: negative velocity moves player up
     playerY -= verticalVelocity * deltaTime;
   }
 
-  // 2. Ground detection and landing
   if (playerY <= 0) {
-    playerY = 0;                 // Clamp to ground level
-    verticalVelocity = 0;        // Reset falling velocity
-    isPlayerOnGround = true;     // Restored grounded state
+    playerY = 0;
+    verticalVelocity = 0;
+    isPlayerOnGround = true;
   }
 
-  // 3. Update player visual position in DOM
   if (verseManElement) {
     verseManElement.style.bottom = (groundBaseline + playerY) + "px";
   }
 }
 
-// Exercise 6: Implement jumping function
+// Triggers jump impulse when grounded
 function jump() {
-  // Restriction 1: Player must be grounded
-  // Restriction 2: Game loop must be actively running
   if (!isPlayerOnGround || !isLoopRunning) {
     return;
   }
 
-  // Apply upward velocity impulse
   isPlayerOnGround = false;
-  verticalVelocity = -jumpStrength; // Negative velocity = upward movement
+  verticalVelocity = -jumpStrength;
   console.log("Verse Man Jumped! Upward velocity applied:", verticalVelocity, "px/s");
 }
 
-// Directional input handlers (preserved from Day 9)
 function handleMoveLeft() {
   console.log("Move Left input detected!");
 }
@@ -241,15 +244,14 @@ function handleMoveRight() {
   console.log("Move Right input detected!");
 }
 
-// Exercise 7: Connect keyboard input with key repeat protection
+// Keyboard input listener with key repeat protection
 document.addEventListener("keydown", function (event) {
   console.log("Key pressed -> event.key:", event.key, "| event.code:", event.code);
 
   if (event.code === "Space") {
-    event.preventDefault(); // Stop default browser page scrolling
+    event.preventDefault();
   }
 
-  // Trigger jump on Spacebar, guarding against key repeat
   if (event.code === "Space" || event.key === " ") {
     if (!event.repeat) {
       jump();
@@ -270,42 +272,115 @@ document.addEventListener("keyup", function (event) {
 });
 
 // ==========================================================================
-// GAME LOOP ENGINE WITH PHYSICS INTEGRATION (Day 11 & Day 12 Integration)
+// COLLISION DETECTION ENGINE (Day 13 Concepts & Implementation)
 // ==========================================================================
 
-// Exercise 8: Integrate physics into the existing game loop
+console.log("--- DAY 13: COLLISION DETECTION ---");
+
+// Step B: Calculate Bounding Box of any element in viewport coordinates
+function getBoundingBox(element) {
+  if (!element || typeof element.getBoundingClientRect !== "function") {
+    return null;
+  }
+  const rect = element.getBoundingClientRect();
+  return {
+    left: rect.left,
+    right: rect.right,
+    top: rect.top,
+    bottom: rect.bottom,
+    width: rect.width,
+    height: rect.height
+  };
+}
+
+// Step C, D & E: Axis-Aligned Bounding Box (AABB) Collision Detection Function
+// Checks both horizontal and vertical overlap in a unified coordinate space
+function isColliding(playerRect, obstacleRect) {
+  if (!playerRect || !obstacleRect) {
+    return false;
+  }
+
+  // Step C: Horizontal overlap conditions:
+  // 1. player.right > obstacle.left (Player right edge past obstacle left edge)
+  // 2. player.left < obstacle.right (Player left edge before obstacle right edge)
+  const horizontalOverlap =
+    playerRect.right > obstacleRect.left &&
+    playerRect.left < obstacleRect.right;
+
+  // Step D: Vertical overlap conditions (in screen coordinates where top is 0 and bottom is positive):
+  // 3. player.bottom > obstacle.top (Player bottom edge below obstacle top edge)
+  // 4. player.top < obstacle.bottom (Player top edge above obstacle bottom edge)
+  const verticalOverlap =
+    playerRect.bottom > obstacleRect.top &&
+    playerRect.top < obstacleRect.bottom;
+
+  // Collision occurs IF AND ONLY IF both horizontal and vertical overlap occur simultaneously
+  return horizontalOverlap && verticalOverlap;
+}
+
+// Step G: Basic Collision Response Handler
+// Executes once, stops game loop, and updates status area
+function handleCollision() {
+  if (hasCollided) {
+    return; // Prevent duplicate collision handling
+  }
+
+  hasCollided = true;
+  isPlayerAlive = false;
+
+  console.log("COLLISION DETECTED! Verse Man struck an obstacle.");
+
+  // Safely stop the game loop
+  stopGameLoop();
+
+  // Display collision message in status area
+  if (statusMessage) {
+    statusMessage.textContent = "CRASH! Verse Man collided with an obstacle.";
+  }
+}
+
+// ==========================================================================
+// GAME LOOP ENGINE WITH PHYSICS & COLLISION INTEGRATION
+// ==========================================================================
+
+// Game loop control variables
 let isLoopRunning = false;        // Boolean flag: True while game loop is active
 let animationFrameId = null;      // Holds request ID from requestAnimationFrame for cancellation
 let frameCount = 0;               // Tracks total animation frames elapsed during active run
 
 // The core loop callback
 function gameLoop(currentTimestamp) {
-  // Guard check: Stop execution if loop was halted
   if (!isLoopRunning) {
     return;
   }
 
-  // Initialize timestamp on first active frame
   if (lastFrameTimestamp === null) {
     lastFrameTimestamp = currentTimestamp;
   }
 
-  // Calculate elapsed time in seconds (deltaTime)
   let deltaTime = (currentTimestamp - lastFrameTimestamp) / 1000;
   lastFrameTimestamp = currentTimestamp;
 
-  // Safety clamp: Prevent large physics steps if tab was frozen or stuttered
   if (deltaTime > 0.1) {
     deltaTime = 0.1;
   }
 
-  // Update player physics based on delta time
+  // 1. Update player vertical physics
   updatePlayerPhysics(deltaTime);
 
-  // Increment total frame counter
-  frameCount++;
+  // 2. Step F: Collision detection during active game update
+  if (verseManElement && obstacleElement && !hasCollided) {
+    const playerBox = getBoundingBox(verseManElement);
+    const obstacleBox = getBoundingBox(obstacleElement);
 
-  // Periodically log progress every 60 frames (approx once per second at 60fps)
+    if (isColliding(playerBox, obstacleBox)) {
+      handleCollision();
+      return; // Stop processing further updates for this frame
+    }
+  }
+
+  // 3. Increment frame counter and log periodically
+  frameCount++;
   if (frameCount % 60 === 0) {
     console.log(
       "Game Loop Active | Frame:", frameCount,
@@ -314,7 +389,7 @@ function gameLoop(currentTimestamp) {
     );
   }
 
-  // Request next screen repaint frame
+  // Schedule next frame
   if (typeof requestAnimationFrame === "function") {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
@@ -322,15 +397,16 @@ function gameLoop(currentTimestamp) {
 
 // Function to start the continuous game loop safely
 function startGameLoop() {
-  // Prevent duplicate concurrent game loops if clicked repeatedly
   if (isLoopRunning) {
     console.log("Game loop is already running; duplicate start ignored.");
     return;
   }
 
   isLoopRunning = true;
+  hasCollided = false;       // Reset collision flag for active session
+  isPlayerAlive = true;
   lastFrameTimestamp = null; // Reset timestamp on start
-  console.log("Starting VERSE-RUN Game Loop with Player Physics...");
+  console.log("Starting VERSE-RUN Game Loop with Collision Detection...");
 
   if (typeof requestAnimationFrame === "function") {
     animationFrameId = requestAnimationFrame(gameLoop);
@@ -356,42 +432,21 @@ function stopGameLoop() {
 }
 
 // --------------------------------------------------------------------------
-// 5. DOM Element Selection & Displaying Game Info
+// Start Button Interaction (Day 5, 8, 11 & 13 Integration)
 // --------------------------------------------------------------------------
 
-// document.querySelector(): Selects an element using CSS selector syntax
-const titleElement = document.querySelector("#game-header h1");
-
-// document.getElementById(): Selects elements using their unique HTML id
-const scoreElement = document.getElementById("current-score-display");
-const highScoreElement = document.getElementById("high-score-display");
-const startButton = document.getElementById("start-btn");
-const statusMessage = document.getElementById("game-status-message");
-
-// Display initial game values on the existing web page HUD
-scoreElement.textContent = "SCORE: " + currentScore;
-highScoreElement.textContent = "HI: " + highScore;
-
-// --------------------------------------------------------------------------
-// 6. Start Button Interaction (Day 5, 8 & 11 Integration)
-// --------------------------------------------------------------------------
-
-// Named function: Contains the clean logic triggered when the player clicks Start
 function startGame() {
   console.log("Start Game button clicked! (startGame function invoked)");
 
-  // Update status flags
   hasGameStarted = true;
   isGameRunning = true;
 
-  // Display welcome/ready message in status area
   statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
 
-  // Start the continuous game loop with player physics
+  // Start continuous loop
   startGameLoop();
 
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);
 }
 
-// Connect the named function to the Start Game button click event
 startButton.addEventListener("click", startGame);

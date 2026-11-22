@@ -288,6 +288,16 @@ body {
   transform: translateY(0);
 }
 
+/* Game Status Message:
+   Displays dynamic feedback when the player interacts with controls. */
+#game-status-message {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #38bdf8; /* Vibrant cyan */
+  margin-top: 12px;
+  font-weight: bold;
+}
+
 /* --------------------------------------------------------------------------
    7. Instructions and Footer
    -------------------------------------------------------------------------- */

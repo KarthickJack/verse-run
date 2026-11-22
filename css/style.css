@@ -1,5 +1,29 @@
-/* 
-  VERSE-RUN — Stylesheet Placeholder
-  Week 1 — Day 2
-  Note: Visual styling will be implemented in Day 3.
-*/
+/* ==========================================================================
+   VERSE-RUN — Stylesheet
+   Week 1 — Day 3: CSS — Styling and Visual Design
+   Theme: Retro Digital Arcade
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Page and Body Styles
+   -------------------------------------------------------------------------- */
+
+/* Universal Reset:
+   Applies to every single element on the page.
+   Ensures padding and borders do not add extra width/height beyond what we specify. */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Page Body:
+   Sets the overall stage background, default font, and default text color. */
+body {
+  background-color: #0f172a; /* Deep slate / midnight background */
+  color: #f8fafc;            /* Clean off-white text color */
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 20px;
+}

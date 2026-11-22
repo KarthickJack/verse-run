@@ -147,22 +147,24 @@ body {
 }
 
 /* Verse Man Placeholder:
-   Our hero block. Styled with defined width and height, electric cyan fill,
-   a brighter highlight border, and centered bold text. */
+   Our hero block positioned absolutely near the ground on the left third of the stage.
+   z-index: 4 ensures Verse Man is rendered in the foreground above background layers. */
 #verse-man {
-  width: 150px;
-  height: 70px;
+  position: absolute;        /* Positioned using exact stage coordinates */
+  bottom: 35px;              /* Rests directly on top of the 35px ground track */
+  left: 40px;                /* Anchored on the left side of the runway */
+  z-index: 4;                /* Foreground layer: renders in front of stage & ground */
+  width: 130px;
+  height: 60px;
   background-color: #38bdf8; /* Electric cyan hero fill */
   color: #0f172a;            /* High-contrast dark text */
   font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   border: 2px solid #bae6fd; /* Light cyan highlight border */
   border-radius: 6px;
-  padding: 12px 8px;
+  padding: 8px 6px;
   text-align: center;
-  margin-top: 30px;
-  margin-bottom: 16px;
 }
 
 /* Ground Track:

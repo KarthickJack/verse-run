@@ -557,6 +557,16 @@ function clearAllCoins() {
     }
   }
   activeCoins = [];
+
+  // Also clear any remaining floating score feedback elements
+  if (gameStageElement && typeof gameStageElement.querySelectorAll === "function") {
+    const feedbackEls = gameStageElement.querySelectorAll(".score-feedback");
+    feedbackEls.forEach(function (el) {
+      if (el.parentNode && typeof el.parentNode.removeChild === "function") {
+        el.parentNode.removeChild(el);
+      }
+    });
+  }
 }
 
 // ==========================================================================
@@ -788,6 +798,19 @@ function handleCollision() {
   if (statusMessage) {
     statusMessage.textContent = "Game Over! You hit an obstacle. Final Score: " + currentScore;
   }
+
+  // Day 19: Update high score if active run surpassed previous best
+  if (currentScore > highScore) {
+    highScore = currentScore;
+    if (highScoreElement) {
+      highScoreElement.textContent = "HI: " + highScore;
+    }
+  }
+
+  // Day 19: Update start button text to offer intuitive restart
+  if (startButton) {
+    startButton.textContent = "Restart Game";
+  }
 }
 
 // ==========================================================================
@@ -941,19 +964,32 @@ function stopGameLoop() {
 function startGame() {
   console.log("Start Game button clicked! (startGame function invoked)");
 
-  // Step C Guard: Only permit transition from "ready" to "playing"
-  // Prevents invalid transitions: "playing" -> "playing" (duplicate) or "gameover" -> "playing" (restart)
-  if (gameState !== "ready") {
-    console.log("Start Game ignored: Current gameState is '" + gameState + "' (must be 'ready').");
+  // Day 19 Guard: Permit transition from "ready" or "gameover" (clean restart) to "playing"
+  // Prevents duplicate starts while actively "playing"
+  if (gameState !== "ready" && gameState !== "gameover") {
+    console.log("Start Game ignored: Current gameState is '" + gameState + "' (must be 'ready' or 'gameover').");
     return;
   }
 
-  // State Transition: READY -> PLAYING
+  // State Transition: READY / GAMEOVER -> PLAYING
   gameState = "playing";
   hasGameStarted = true;
   isGameRunning = true;
   hasCollided = false;
   isPlayerAlive = true;
+
+  // Reset button text to active label
+  if (startButton) {
+    startButton.textContent = "Start Game";
+  }
+
+  // Day 19: Reset player vertical physics position and state on start/restart
+  playerY = 0;
+  verticalVelocity = 0;
+  isPlayerOnGround = true;
+  if (verseManElement) {
+    verseManElement.style.bottom = groundBaseline + "px";
+  }
 
   // Day 15 & 18: Reset score components, accumulator, difficulty and speed on start
   survivalScore = 0;

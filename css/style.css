@@ -397,3 +397,86 @@ body {
   font-size: 13px;
   color: #64748b; /* Subtle muted gray */
 }
+
+/* --------------------------------------------------------------------------
+   8. Responsive Design & Media Queries (Day 19)
+   -------------------------------------------------------------------------- */
+
+/* Compact screens and mobile viewports (e.g. 375px iPhone SE, 390px iPhone 12/13/14) */
+@media (max-width: 600px) {
+  body {
+    padding: 10px 8px;
+  }
+
+  #game-wrapper {
+    padding: 14px 10px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+
+  #game-header h1 {
+    font-size: 26px;
+    letter-spacing: 2px;
+  }
+
+  .game-description {
+    font-size: 13px;
+  }
+
+  #hud-container {
+    padding: 8px 12px;
+    margin-bottom: 12px;
+  }
+
+  #high-score-display,
+  #current-score-display {
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 2px 4px;
+  }
+
+  #game-stage {
+    height: 200px;
+    margin-bottom: 14px;
+  }
+
+  #verse-man {
+    width: 80px;
+    height: 50px;
+    font-size: 10px;
+    padding: 6px 4px;
+    left: 20px;
+  }
+
+  #obstacle,
+  .obstacle {
+    width: 60px;
+    height: 45px;
+    font-size: 10px;
+    padding: 4px 2px;
+  }
+
+  #start-btn {
+    font-size: 14px;
+    padding: 10px 24px;
+  }
+
+  #game-status-message {
+    font-size: 13px;
+  }
+
+  #instructions-section {
+    padding: 12px 14px;
+  }
+
+  #instructions-section h2 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  #instructions-section ul {
+    font-size: 13px;
+    padding-left: 18px;
+  }
+}

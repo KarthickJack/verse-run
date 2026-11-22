@@ -27,3 +27,27 @@ body {
   min-height: 100vh;
   padding: 20px;
 }
+
+/* --------------------------------------------------------------------------
+   2. Main Game Container
+   -------------------------------------------------------------------------- */
+
+/* App Container:
+   Acts as the central column for the entire application.
+   Uses max-width and auto margins to center the entire game on the screen. */
+#app-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Game Wrapper:
+   The main console card housing the HUD, stage, controls, and instructions.
+   Styled as a distinct dark panel with borders and inner breathing room. */
+#game-wrapper {
+  background-color: #1e293b; /* Slightly lighter slate for contrast */
+  border: 2px solid #334155; /* Subtle border framing the console */
+  border-radius: 12px;       /* Rounded corners for arcade panel feel */
+  padding: 24px;             /* Space between the border and internal game elements */
+  margin-top: 20px;
+  margin-bottom: 24px;
+}

@@ -1,6 +1,6 @@
 /* ==========================================================================
    VERSE-RUN — Game Script
-   Week 3 — Day 11: Timers and Game Loops
+   Week 3 — Day 12: Player Movement and Position
    ========================================================================== */
 
 // External script connected successfully.
@@ -58,7 +58,6 @@ console.log("Game Over Message:", gameOverMessage);
 
 console.log("--- DAY 7 RULES PLAYGROUND ---");
 
-// Arithmetic and Assignment
 let bonusPoints = 50;
 let totalScore = currentScore + bonusPoints;
 let penalty = 15;
@@ -73,13 +72,11 @@ testScore -= 10;
 testScore *= 2;
 testScore /= 4;
 
-// Comparisons & Equality
 let isScoreBeatingHigh = currentScore > highScore;
 let isSpeedBelowThreshold = gameSpeed < 10;
 let isPassingScore = currentScore >= 0;
 let isSpeedMaxCap = gameSpeed <= 5;
 
-// Logical Operators
 let isActivelySurviving = isGameRunning && isPlayerAlive;
 let isReadyOrWaiting = hasGameStarted || !isGameRunning;
 let isGameIdle = !isGameRunning;
@@ -90,21 +87,18 @@ let isGameIdle = !isGameRunning;
 
 console.log("--- DAY 8: FUNCTION PLAYGROUND ---");
 
-// Exercise 1: Welcome Message Function
 function showWelcomeMessage() {
   const welcomeText = "Welcome to " + gameTitle + "!";
   console.log(welcomeText);
   return welcomeText;
 }
 
-// Exercise 2: Bonus Calculator Function
 function calculateBonus(points) {
   const bonus = 50;
   const totalWithBonus = points + bonus;
   return totalWithBonus;
 }
 
-// Exercise 3: High-Score Checker Function
 function checkHighScore(score, recordHighScore) {
   if (score > recordHighScore) {
     return "New record achieved! High score beaten.";
@@ -115,7 +109,6 @@ function checkHighScore(score, recordHighScore) {
   }
 }
 
-// Exercise 4: Difficulty Calculator Function
 function getDifficulty(score) {
   if (score >= 300) {
     return "Hard";
@@ -125,51 +118,6 @@ function getDifficulty(score) {
     return "Easy";
   }
 }
-
-// ==========================================================================
-// KEYBOARD CONTROL PLAYGROUND (Day 9 Preserved Listeners & Handlers)
-// ==========================================================================
-
-console.log("--- DAY 9: KEYBOARD CONTROL PLAYGROUND ---");
-
-// Named Functions for Keyboard Input Handling
-function handleJumpInput() {
-  console.log("Verse Man is ready to jump!");
-}
-
-function handleMoveLeft() {
-  console.log("Move Left input detected!");
-}
-
-function handleMoveRight() {
-  console.log("Move Right input detected!");
-}
-
-// Keyboard Event Listeners (Registered once at top level)
-document.addEventListener("keydown", function (event) {
-  console.log("Key pressed -> event.key:", event.key, "| event.code:", event.code);
-
-  if (event.code === "Space") {
-    event.preventDefault();
-  }
-
-  if (event.code === "Space" || event.key === " ") {
-    console.log("Jump key detected!");
-    handleJumpInput();
-  }
-
-  if (event.key === "ArrowLeft") {
-    console.log("ArrowLeft detected!");
-    handleMoveLeft();
-  } else if (event.key === "ArrowRight") {
-    console.log("ArrowRight detected!");
-    handleMoveRight();
-  }
-});
-
-document.addEventListener("keyup", function (event) {
-  console.log("Key released -> event.key:", event.key, "| event.code:", event.code);
-});
 
 // ==========================================================================
 // OBSTACLE SELECTION PLAYGROUND (Day 10 Preserved Data & Functions)
@@ -200,83 +148,170 @@ function showRandomObstacle() {
 }
 
 // ==========================================================================
-// CONTINUOUS UPDATE PLAYGROUND (Day 11 Timers & Game Loop)
+// CONTINUOUS UPDATE PLAYGROUND (Day 11 Timers)
 // ==========================================================================
 
 console.log("--- DAY 11: CONTINUOUS UPDATE PLAYGROUND ---");
 
-// --------------------------------------------------------------------------
-// Exercise 1: Delayed Execution with setTimeout()
-// --------------------------------------------------------------------------
-console.log("Scheduling a 2-second delayed message with setTimeout()...");
 const delayedTimerId = setTimeout(function () {
   console.log("setTimeout Callback: 2 seconds elapsed! Asynchronous operation completed.");
 }, 2000);
-console.log("Notice: Code immediately continues executing after setTimeout without blocking!");
 
-// --------------------------------------------------------------------------
-// Exercise 2 & 3: Repeated Execution (setInterval) & Stopping (clearInterval)
-// --------------------------------------------------------------------------
 let countdownSeconds = 0;
-console.log("Starting a 1-second interval counter with setInterval()...");
-
 const countdownIntervalId = setInterval(function () {
   countdownSeconds++;
   console.log("setInterval tick: Elapsed seconds =", countdownSeconds);
 
-  // Stop the interval after 3 ticks to demonstrate clearInterval()
   if (countdownSeconds >= 3) {
     clearInterval(countdownIntervalId);
     console.log("clearInterval() invoked: Stopped repeating interval timer with ID:", countdownIntervalId);
   }
 }, 1000);
 
-// --------------------------------------------------------------------------
-// Exercise 4: Canceling a Timeout with clearTimeout()
-// --------------------------------------------------------------------------
 const canceledTimeoutId = setTimeout(function () {
   console.log("This message should NEVER appear because it will be canceled!");
 }, 5000);
 
 clearTimeout(canceledTimeoutId);
-console.log("clearTimeout() invoked: Successfully canceled pending timeout with ID:", canceledTimeoutId);
 
-// --------------------------------------------------------------------------
-// Exercise 5: Controlled requestAnimationFrame() Demo
-// --------------------------------------------------------------------------
-let singleFrameStep = 0;
-function singleFrameDemo() {
-  singleFrameStep++;
-  console.log("Single animation frame repaint executed. Step:", singleFrameStep);
-  // Intentionally does NOT recurse indefinitely — single demonstration frame
+// ==========================================================================
+// PLAYER PHYSICS & MOVEMENT (Day 12 Concepts & Engine)
+// ==========================================================================
+
+console.log("--- DAY 12: PLAYER PHYSICS & MOVEMENT ---");
+
+// Exercise 1: Identify existing DOM player element
+const verseManElement = document.getElementById("verse-man");
+
+// Exercise 2 & 4: Establish player position, physics and ground baseline
+// CSS baseline: #verse-man { bottom: 35px; } resting on 35px ground track
+const groundBaseline = 35;       // Constant: CSS bottom offset (px) for ground level
+let playerY = 0;                 // Number: Vertical height above ground (0 = grounded)
+let verticalVelocity = 0;        // Number (px/s): negative = upward, positive = downward
+let gravity = 1600;              // Number (px/s²): Downward gravitational acceleration
+let jumpStrength = 600;          // Number (px/s): Initial upward impulse when jumping
+
+let lastFrameTimestamp = null;   // Tracks previous frame timestamp for delta time calculation
+
+// Exercise 5: Implement player physics update function
+// Receives elapsed time in seconds (deltaTime) to ensure framerate-independent physics
+function updatePlayerPhysics(deltaTime) {
+  // 1. If airborne or moving, apply gravity to vertical velocity
+  if (!isPlayerOnGround || playerY > 0 || verticalVelocity !== 0) {
+    // Gravity pulls downward (increases positive vertical velocity)
+    verticalVelocity += gravity * deltaTime;
+
+    // Update vertical position: negative velocity moves player up
+    playerY -= verticalVelocity * deltaTime;
+  }
+
+  // 2. Ground detection and landing
+  if (playerY <= 0) {
+    playerY = 0;                 // Clamp to ground level
+    verticalVelocity = 0;        // Reset falling velocity
+    isPlayerOnGround = true;     // Restored grounded state
+  }
+
+  // 3. Update player visual position in DOM
+  if (verseManElement) {
+    verseManElement.style.bottom = (groundBaseline + playerY) + "px";
+  }
 }
-if (typeof requestAnimationFrame === "function") {
-  requestAnimationFrame(singleFrameDemo);
+
+// Exercise 6: Implement jumping function
+function jump() {
+  // Restriction 1: Player must be grounded
+  // Restriction 2: Game loop must be actively running
+  if (!isPlayerOnGround || !isLoopRunning) {
+    return;
+  }
+
+  // Apply upward velocity impulse
+  isPlayerOnGround = false;
+  verticalVelocity = -jumpStrength; // Negative velocity = upward movement
+  console.log("Verse Man Jumped! Upward velocity applied:", verticalVelocity, "px/s");
 }
 
-// --------------------------------------------------------------------------
-// Exercise 6: VERSE-RUN Core Game Loop Engine
-// --------------------------------------------------------------------------
+// Directional input handlers (preserved from Day 9)
+function handleMoveLeft() {
+  console.log("Move Left input detected!");
+}
 
-// Game loop control variables
+function handleMoveRight() {
+  console.log("Move Right input detected!");
+}
+
+// Exercise 7: Connect keyboard input with key repeat protection
+document.addEventListener("keydown", function (event) {
+  console.log("Key pressed -> event.key:", event.key, "| event.code:", event.code);
+
+  if (event.code === "Space") {
+    event.preventDefault(); // Stop default browser page scrolling
+  }
+
+  // Trigger jump on Spacebar, guarding against key repeat
+  if (event.code === "Space" || event.key === " ") {
+    if (!event.repeat) {
+      jump();
+    }
+  }
+
+  if (event.key === "ArrowLeft") {
+    console.log("ArrowLeft detected!");
+    handleMoveLeft();
+  } else if (event.key === "ArrowRight") {
+    console.log("ArrowRight detected!");
+    handleMoveRight();
+  }
+});
+
+document.addEventListener("keyup", function (event) {
+  console.log("Key released -> event.key:", event.key, "| event.code:", event.code);
+});
+
+// ==========================================================================
+// GAME LOOP ENGINE WITH PHYSICS INTEGRATION (Day 11 & Day 12 Integration)
+// ==========================================================================
+
+// Exercise 8: Integrate physics into the existing game loop
 let isLoopRunning = false;        // Boolean flag: True while game loop is active
 let animationFrameId = null;      // Holds request ID from requestAnimationFrame for cancellation
 let frameCount = 0;               // Tracks total animation frames elapsed during active run
 
 // The core loop callback
-function gameLoop() {
+function gameLoop(currentTimestamp) {
   // Guard check: Stop execution if loop was halted
   if (!isLoopRunning) {
     return;
   }
 
+  // Initialize timestamp on first active frame
+  if (lastFrameTimestamp === null) {
+    lastFrameTimestamp = currentTimestamp;
+  }
+
+  // Calculate elapsed time in seconds (deltaTime)
+  let deltaTime = (currentTimestamp - lastFrameTimestamp) / 1000;
+  lastFrameTimestamp = currentTimestamp;
+
+  // Safety clamp: Prevent large physics steps if tab was frozen or stuttered
+  if (deltaTime > 0.1) {
+    deltaTime = 0.1;
+  }
+
+  // Update player physics based on delta time
+  updatePlayerPhysics(deltaTime);
+
   // Increment total frame counter
   frameCount++;
 
-  // Periodically log progress (every 60 frames = approx once per second at 60fps)
-  // Prevents console flooding while confirming continuous updates
+  // Periodically log progress every 60 frames (approx once per second at 60fps)
   if (frameCount % 60 === 0) {
-    console.log("VERSE-RUN Game Loop Active — Frame Count:", frameCount);
+    console.log(
+      "Game Loop Active | Frame:", frameCount,
+      "| Player Height Above Ground:", Math.round(playerY) + "px",
+      "| Grounded:", isPlayerOnGround
+    );
   }
 
   // Request next screen repaint frame
@@ -294,7 +329,8 @@ function startGameLoop() {
   }
 
   isLoopRunning = true;
-  console.log("Starting VERSE-RUN Game Loop...");
+  lastFrameTimestamp = null; // Reset timestamp on start
+  console.log("Starting VERSE-RUN Game Loop with Player Physics...");
 
   if (typeof requestAnimationFrame === "function") {
     animationFrameId = requestAnimationFrame(gameLoop);
@@ -309,6 +345,7 @@ function stopGameLoop() {
   }
 
   isLoopRunning = false;
+  lastFrameTimestamp = null; // Reset timestamp on stop
 
   if (animationFrameId !== null && typeof cancelAnimationFrame === "function") {
     cancelAnimationFrame(animationFrameId);
@@ -350,7 +387,7 @@ function startGame() {
   // Display welcome/ready message in status area
   statusMessage.textContent = "Get ready, runner! Welcome to " + gameTitle + ".";
 
-  // Start the continuous game loop
+  // Start the continuous game loop with player physics
   startGameLoop();
 
   console.log("Updated Game Status -> hasGameStarted:", hasGameStarted, "| isGameRunning:", isGameRunning);

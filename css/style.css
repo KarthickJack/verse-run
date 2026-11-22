@@ -128,7 +128,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   5. Game Area and Verse Man Placeholder
+   5. Game Area, Game Objects & Scenery
    -------------------------------------------------------------------------- */
 
 /* Game Stage:
@@ -144,6 +144,42 @@ body {
   border-radius: 8px;
   overflow: hidden;          /* Clips any elements drifting outside the stage */
   margin-bottom: 20px;
+}
+
+/* Decorative Keyframe Animation:
+   Demonstrates CSS keyframe animations (@keyframes) for ambient visual scenery.
+   Cycles gently in a floating loop across the digital night sky. */
+@keyframes floatCloud {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-6px) translateX(12px);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+}
+
+/* Cloud Placeholder:
+   Background scenery element anchored high in the sky.
+   z-index: 1 ensures it sits behind Verse Man, obstacles, and the ground. */
+#cloud {
+  position: absolute;        /* Positioned in the stage sky */
+  top: 25px;
+  left: 80px;
+  z-index: 1;                /* Background scenery layer (depth 1) */
+  background-color: #1e293b; /* Subtle dark cloud panel */
+  color: #94a3b8;            /* Muted slate text */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: 1px dashed #475569; /* Dashed pixel outline */
+  border-radius: 12px;
+  padding: 6px 14px;
+  opacity: 0.85;
+  animation: floatCloud 4s ease-in-out infinite; /* Continuous decorative float loop */
 }
 
 /* Verse Man Placeholder:

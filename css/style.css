@@ -190,17 +190,23 @@ body {
 }
 
 /* Ground Track:
-   A retro green runway strip beneath the character. */
+   A retro green runway pinned to the bottom of the stage spanning full width.
+   z-index: 2 places it beneath characters and obstacles while above the background. */
 #ground {
+  position: absolute;        /* Pinned to the stage base */
+  bottom: 0;
+  left: 0;
+  width: 100%;               /* Extends across the entire stage */
+  height: 35px;              /* Exact 35px track height matching character/obstacle bottoms */
+  z-index: 2;                /* Track layer */
   background-color: #22c55e; /* Retro green runway */
-  color: #0f172a;            /* Dark text */
+  color: #0f172a;            /* Dark high-contrast label */
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   font-weight: bold;
   letter-spacing: 1px;
   text-align: center;
-  padding: 12px;
-  border-radius: 4px;
+  line-height: 32px;         /* Vertically centers text inside the 35px bar */
   border-top: 3px solid #86efac; /* Brighter green track line */
 }
 

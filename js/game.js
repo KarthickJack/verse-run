@@ -256,7 +256,6 @@ function createObstacle(initialX) {
   // Create DOM element using existing .obstacle style
   const element = document.createElement("div");
   element.className = "obstacle";
-  element.textContent = "OBSTACLE";
   element.style.right = "auto";
   element.style.left = spawnX + "px";
 
@@ -811,6 +810,10 @@ function handleCollision() {
   if (startButton) {
     startButton.textContent = "Restart Game";
   }
+
+  if (verseManElement) {
+    verseManElement.classList.toggle('paused')
+  }
 }
 
 // ==========================================================================
@@ -989,6 +992,7 @@ function startGame() {
   isPlayerOnGround = true;
   if (verseManElement) {
     verseManElement.style.bottom = groundBaseline + "px";
+    verseManElement.classList.toggle('paused')
   }
 
   // Day 15 & 18: Reset score components, accumulator, difficulty and speed on start

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <!-- Link to external JavaScript (behavior begins on Day 5) -->
   <script src="js/game.js" defer></script>
 </head>
+
 <body>
 
   <!-- App Container: Groups the entire web page content -->
@@ -34,13 +36,24 @@
       <!-- 3. Main Game Area: The stage where gameplay will happen -->
       <div id="game-stage">
         <!-- Decorative Background Element (Day 4 Animation) -->
-        <div id="cloud">☁ CLOUD</div>
+        <div class="jump-box" id="jumpBox" title="Click or press Space / Up Arrow to jump">
 
-        <!-- Player Character Placeholder -->
-        <div id="verse-man">Verse Man (Player)</div>
+          <div class="cloud"></div>
+
+          <!-- Player Character Placeholder -->
+          <div id="verse-man" class="paused">
+            <div class="head"><span class="hair"></span></div>
+            <div class="torso"></div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="leg left"></div>
+            <div class="leg right"></div>
+          </div>
+        </div>
+        <!-- <div id="verse-man">Verse Man (Player)</div> -->
 
         <!-- Obstacle Placeholder (Day 4 Positioning) -->
-        <div id="obstacle">OBSTACLE</div>
+        <div id="obstacle"></div>
 
         <!-- Ground Track Placeholder -->
         <div id="ground">Ground Track</div>
@@ -73,4 +86,5 @@
   </div>
 
 </body>
+
 </html>

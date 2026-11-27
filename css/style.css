@@ -20,8 +20,10 @@
 /* Page Body:
    Sets the overall stage background, default font, and default text color. */
 body {
-  background-color: #0f172a; /* Deep slate / midnight background */
-  color: #f8fafc;            /* Clean off-white text color */
+  background-color: #0f172a;
+  /* Deep slate / midnight background */
+  color: #f8fafc;
+  /* Clean off-white text color */
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   min-height: 100vh;
@@ -44,10 +46,14 @@ body {
    The main console card housing the HUD, stage, controls, and instructions.
    Styled as a distinct dark panel with borders and inner breathing room. */
 #game-wrapper {
-  background-color: #1e293b; /* Slightly lighter slate for contrast */
-  border: 2px solid #334155; /* Subtle border framing the console */
-  border-radius: 12px;       /* Rounded corners for arcade panel feel */
-  padding: 24px;             /* Space between the border and internal game elements */
+  background-color: #1e293b;
+  /* Slightly lighter slate for contrast */
+  border: 2px solid #334155;
+  /* Subtle border framing the console */
+  border-radius: 12px;
+  /* Rounded corners for arcade panel feel */
+  padding: 24px;
+  /* Space between the border and internal game elements */
   margin-top: 20px;
   margin-bottom: 24px;
 }
@@ -71,7 +77,8 @@ body {
   font-size: 36px;
   font-weight: 800;
   letter-spacing: 3px;
-  color: #38bdf8; /* Vibrant cyan */
+  color: #38bdf8;
+  /* Vibrant cyan */
   margin-bottom: 8px;
 }
 
@@ -80,10 +87,12 @@ body {
    Styled with a softer text tone and balanced line height for easy reading. */
 .game-description {
   font-size: 15px;
-  color: #94a3b8; /* Muted slate gray */
+  color: #94a3b8;
+  /* Muted slate gray */
   line-height: 1.6;
   max-width: 500px;
-  margin: 0 auto; /* Keeps the text block centered */
+  margin: 0 auto;
+  /* Keeps the text block centered */
 }
 
 /* --------------------------------------------------------------------------
@@ -97,7 +106,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0a0f1d; /* Deep stage dark */
+  background-color: #0a0f1d;
+  /* Deep stage dark */
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 10px 16px;
@@ -118,13 +128,15 @@ body {
 /* High Score Display:
    Highlighted in arcade gold for prestige. */
 #high-score-display {
-  color: #f59e0b; /* Arcade gold */
+  color: #f59e0b;
+  /* Arcade gold */
 }
 
 /* Current Score Display:
    Highlighted in electric cyan for active gameplay clarity. */
 #current-score-display {
-  color: #38bdf8; /* Electric cyan */
+  color: #38bdf8;
+  /* Electric cyan */
 }
 
 /* --------------------------------------------------------------------------
@@ -136,13 +148,18 @@ body {
    position: relative establishes the coordinate reference frame for all child elements.
    overflow: hidden ensures moving elements never spill outside the arena boundary. */
 #game-stage {
-  position: relative;        /* Coordinate reference anchor for game objects */
+  position: relative;
+  /* Coordinate reference anchor for game objects */
   width: 100%;
-  height: 220px;             /* Fixed arena height */
-  background-color: #0a0f1d; /* Pitch dark runway sky */
-  border: 2px solid #334155; /* Distinct arena boundary */
+  height: 220px;
+  /* Fixed arena height */
+  background-color: #f8fafc;
+  /* Pitch dark runway sky */
+  border: 2px solid #334155;
+  /* Distinct arena boundary */
   border-radius: 8px;
-  overflow: hidden;          /* Clips any elements drifting outside the stage */
+  overflow: hidden;
+  /* Clips any elements drifting outside the stage */
   margin-bottom: 20px;
 }
 
@@ -153,9 +170,11 @@ body {
   0% {
     transform: translateY(0px) translateX(0px);
   }
+
   50% {
     transform: translateY(-6px) translateX(12px);
   }
+
   100% {
     transform: translateY(0px) translateX(0px);
   }
@@ -164,63 +183,116 @@ body {
 /* Cloud Placeholder:
    Background scenery element anchored high in the sky.
    z-index: 1 ensures it sits behind Verse Man, obstacles, and the ground. */
-#cloud {
-  position: absolute;        /* Positioned in the stage sky */
+/* #cloud {
+  position: absolute;
+  /* Positioned in the stage sky
   top: 25px;
   left: 80px;
-  z-index: 1;                /* Background scenery layer (depth 1) */
-  background-color: #1e293b; /* Subtle dark cloud panel */
-  color: #94a3b8;            /* Muted slate text */
+  z-index: 1;
+  /* Background scenery layer (depth 1)
+  background-color: #1e293b;
+  /* Subtle dark cloud panel
+  color: #94a3b8;
+  /* Muted slate text
   font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   font-weight: bold;
   letter-spacing: 1px;
-  border: 1px dashed #475569; /* Dashed pixel outline */
+  border: 1px dashed #475569;
+  /* Dashed pixel outline
   border-radius: 12px;
   padding: 6px 14px;
   opacity: 0.85;
-  animation: floatCloud 4s ease-in-out infinite; /* Continuous decorative float loop */
+  animation: floatCloud 4s ease-in-out infinite;
+  /* Continuous decorative float loop
+} */
+
+.cloud {
+  margin-top: 7px;
+  width: 35px;
+  height: 12px;
+  background: #66D0FF;
+  box-shadow: 10px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 100px;
+  animation: floatCloud 4s ease-in-out infinite;
 }
+
+/* .cloud::after,
+.cloud::before {
+  content: "";
+  position: relative;
+  display: inline-block;
+  background: inherit;
+  border-radius: inherit;
+}
+
+.cloud::after {
+  width: 100px;
+  height: 100px;
+  top: -220px;
+  left: 50px;
+}
+
+.cloud::before {
+  width: 180px;
+  height: 180px;
+  top: -70px;
+  left: 130px;
+} */
 
 /* Verse Man Placeholder:
    Our hero block positioned absolutely near the ground on the left third of the stage.
    z-index: 4 ensures Verse Man is rendered in the foreground above background layers. */
-#verse-man {
-  position: absolute;        /* Positioned using exact stage coordinates */
-  bottom: 35px;              /* Rests directly on top of the 35px ground track */
-  left: 40px;                /* Anchored on the left side of the runway */
-  z-index: 4;                /* Foreground layer: renders in front of stage & ground */
+/* #verse-man {
+  position: absolute;
+  /* Positioned using exact stage coordinates
+  bottom: 35px;
+  /* Rests directly on top of the 35px ground track
+  left: 40px;
+  /* Anchored on the left side of the runway
+  z-index: 4;
+  /* Foreground layer: renders in front of stage & ground
   width: 130px;
   height: 60px;
-  background-color: #38bdf8; /* Electric cyan hero fill */
-  color: #0f172a;            /* High-contrast dark text */
+  background-color: #38bdf8;
+  /* Electric cyan hero fill
+  color: #0f172a;
+  /* High-contrast dark text
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   font-weight: bold;
-  border: 2px solid #bae6fd; /* Light cyan highlight border */
+  border: 2px solid #bae6fd;
+  /* Light cyan highlight border
   border-radius: 6px;
   padding: 8px 6px;
   text-align: center;
-}
+} */
 
 /* Obstacle Styling:
    Hazardous ground barriers placed ahead of Verse Man on the runway.
    z-index: 3 places them on the interactive gameplay object layer. */
 #obstacle,
 .obstacle {
-  position: absolute;        /* Positioned at exact coordinates on the stage */
-  bottom: 35px;              /* Aligned with the top of the ground track */
-  right: 80px;               /* Positioned ahead on the right side of the screen */
-  z-index: 3;                /* Game object layer */
-  width: 90px;
+  position: absolute;
+  /* Positioned at exact coordinates on the stage */
+  bottom: 35px;
+  /* Aligned with the top of the ground track */
+  right: 80px;
+  /* Positioned ahead on the right side of the screen */
+  z-index: 3;
+  /* Game object layer */
+  width: 25px;
   height: 50px;
-  background-color: #ef4444; /* Retro arcade warning red */
-  color: #ffffff;            /* Crisp white text */
+  background-color: #ef4444;
+  /* Retro arcade warning red */
+  color: #ffffff;
+  /* Crisp white text */
   font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   font-weight: bold;
   letter-spacing: 1px;
-  border: 2px solid #fca5a5; /* Lighter red hazard border */
+  border: 2px solid #fca5a5;
+  /* Lighter red hazard border */
   border-radius: 4px;
   padding: 6px 4px;
   text-align: center;
@@ -233,17 +305,23 @@ body {
   position: absolute;
   width: 24px;
   height: 24px;
-  background-color: #facc15; /* Retro arcade gold */
-  border: 2px solid #fef08a; /* Bright yellow highlight border */
-  border-radius: 50%;        /* Circular coin token */
-  z-index: 3;                /* Gameplay object layer */
-  box-shadow: 0 0 8px rgba(250, 204, 21, 0.7); /* Radiant glow */
+  background-color: #facc15;
+  /* Retro arcade gold */
+  border: 2px solid #fef08a;
+  /* Bright yellow highlight border */
+  border-radius: 50%;
+  /* Circular coin token */
+  z-index: 3;
+  /* Gameplay object layer */
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
+  /* Radiant glow */
   text-align: center;
   line-height: 20px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   font-weight: bold;
-  color: #854d0e;            /* Deep gold token imprint */
+  color: #854d0e;
+  /* Deep gold token imprint */
   pointer-events: none;
 }
 
@@ -266,6 +344,7 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-28px);
@@ -276,21 +355,29 @@ body {
    A retro green runway pinned to the bottom of the stage spanning full width.
    z-index: 2 places it beneath characters and obstacles while above the background. */
 #ground {
-  position: absolute;        /* Pinned to the stage base */
+  position: absolute;
+  /* Pinned to the stage base */
   bottom: 0;
   left: 0;
-  width: 100%;               /* Extends across the entire stage */
-  height: 35px;              /* Exact 35px track height matching character/obstacle bottoms */
-  z-index: 2;                /* Track layer */
-  background-color: #22c55e; /* Retro green runway */
-  color: #0f172a;            /* Dark high-contrast label */
+  width: 100%;
+  /* Extends across the entire stage */
+  height: 35px;
+  /* Exact 35px track height matching character/obstacle bottoms */
+  z-index: 2;
+  /* Track layer */
+  background-color: #22c55e;
+  /* Retro green runway */
+  color: #0f172a;
+  /* Dark high-contrast label */
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   font-weight: bold;
   letter-spacing: 1px;
   text-align: center;
-  line-height: 32px;         /* Vertically centers text inside the 35px bar */
-  border-top: 3px solid #86efac; /* Brighter green track line */
+  line-height: 32px;
+  /* Vertically centers text inside the 35px bar */
+  border-top: 3px solid #86efac;
+  /* Brighter green track line */
 }
 
 /* --------------------------------------------------------------------------
@@ -309,24 +396,31 @@ body {
    A prominent, tactile arcade action button.
    Uses CSS transitions to provide smooth, polished visual feedback on hover. */
 #start-btn {
-  background-color: #22c55e; /* Vibrant retro green */
-  color: #0f172a;            /* Dark high-contrast text */
+  background-color: #22c55e;
+  /* Vibrant retro green */
+  color: #0f172a;
+  /* Dark high-contrast text */
   font-family: 'Courier New', Courier, monospace;
   font-size: 16px;
   font-weight: bold;
   letter-spacing: 1px;
-  border: 2px solid #86efac; /* Lighter green border highlight */
+  border: 2px solid #86efac;
+  /* Lighter green border highlight */
   border-radius: 8px;
   padding: 12px 32px;
-  cursor: pointer;           /* Changes mouse cursor to a clicking hand */
-  transition: background-color 0.2s ease, transform 0.15s ease; /* Smooth transition */
+  cursor: pointer;
+  /* Changes mouse cursor to a clicking hand */
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  /* Smooth transition */
 }
 
 /* Button Hover State:
    Smoothly darkens the button and provides a subtle tactile lift. */
 #start-btn:hover {
-  background-color: #16a34a; /* Deeper green shade on hover */
-  transform: translateY(-2px); /* Subtle 2px upward lift */
+  background-color: #16a34a;
+  /* Deeper green shade on hover */
+  transform: translateY(-2px);
+  /* Subtle 2px upward lift */
 }
 
 /* Button Active State:
@@ -340,7 +434,8 @@ body {
 #game-status-message {
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
-  color: #38bdf8; /* Vibrant cyan */
+  color: #38bdf8;
+  /* Vibrant cyan */
   margin-top: 12px;
   font-weight: bold;
 }
@@ -352,7 +447,8 @@ body {
 /* Instructions Card:
    Styled as an informative card within the console wrapper. */
 #instructions-section {
-  background-color: #0a0f1d; /* Matches the dark inset areas */
+  background-color: #0a0f1d;
+  /* Matches the dark inset areas */
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 16px 20px;
@@ -371,7 +467,8 @@ body {
    Ensures bullet points are neatly indented and text is readable. */
 #instructions-section ul {
   padding-left: 20px;
-  color: #94a3b8; /* Muted slate gray */
+  color: #94a3b8;
+  /* Muted slate gray */
   font-size: 14px;
   line-height: 1.6;
 }
@@ -395,7 +492,8 @@ body {
   padding-top: 16px;
   padding-bottom: 16px;
   font-size: 13px;
-  color: #64748b; /* Subtle muted gray */
+  color: #64748b;
+  /* Subtle muted gray */
 }
 
 /* --------------------------------------------------------------------------
@@ -478,5 +576,321 @@ body {
   #instructions-section ul {
     font-size: 13px;
     padding-left: 18px;
+  }
+}
+
+
+:root {
+  --hair: #1b1614;
+  --skin: #9c633b;
+  --mask: #0b5ed7;
+  --glow: #4da3ff;
+  --suit-blue: #1565c0;
+  --suit-dark: #141820;
+  --glove: #181c24;
+  --eye: #ffffff;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+
+.jump-box {
+  cursor: pointer;
+}
+
+.jump-box.jumping {
+  animation: jump 0.6s cubic-bezier(0.22, 0.85, 0.36, 1);
+}
+
+#verse-man {
+  position: absolute;
+  bottom: 35px;
+  width: 50px;
+  height: 75px;
+  z-index: 4;
+  animation: bob 0.44s ease-in-out infinite;
+}
+
+.jump-box.jumping #verse-man {
+  animation-play-state: paused;
+}
+
+/* Standing still state */
+#verse-man.paused,
+#verse-man.paused .arm,
+#verse-man.paused .arm::after,
+#verse-man.paused .leg,
+#verse-man.paused .leg::after {
+  animation-play-state: paused;
+}
+
+#verse-man.paused {
+  transform: translateY(0);
+}
+
+#verse-man.paused .torso,
+#verse-man.paused .arm,
+#verse-man.paused .arm::after,
+#verse-man.paused .leg,
+#verse-man.paused .leg::after {
+  transform: rotate(0deg);
+}
+
+/* Head + swept-back short hair + glowing blue mask */
+.head {
+  position: absolute;
+  top: 3px;
+  left: 26px;
+  width: 17px;
+  height: 17px;
+  border-radius: 45% 50% 45% 40%;
+  background: var(--skin);
+}
+
+/* Swept-back hair cap angled toward the rear/top */
+.head .hair {
+  position: absolute;
+  top: -2px;
+  left: -3px;
+  width: 20px;
+  height: 6px;
+  background: var(--hair);
+  border-radius: 10px 3px 10px 0px;
+  transform: rotate(-14deg);
+  transform-origin: right center;
+}
+
+.hair::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 16px;
+  background: var(--hair);
+  border-radius: 10px 1px 10px 0px;
+  transform: rotate(0deg);
+  transform-origin: left center;
+}
+
+.head::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 12px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--mask);
+  box-shadow: 0 0 4px var(--glow);
+}
+
+.head::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 11px;
+  width: 3px;
+  height: 2px;
+  background: var(--eye);
+}
+
+/* Blue & dark superhero torso */
+.torso {
+  position: absolute;
+  top: 20px;
+  left: 23px;
+  width: 12px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--suit-blue);
+  transform: rotate(15deg);
+}
+
+/* Upper arm + forearm (::after bends at elbow) */
+.arm {
+  position: absolute;
+  top: 25px;
+  left: 26px;
+  width: 8px;
+  height: 15px;
+  border-radius: 5px;
+  background: var(--suit-blue);
+  transform-origin: top center;
+}
+
+.arm::after {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 0;
+  width: 8px;
+  height: 15px;
+  border-radius: 5px;
+  background: var(--glove);
+  transform-origin: top center;
+}
+
+/* Thigh + shin (::after bends at knee) */
+.leg {
+  position: absolute;
+  top: 48px;
+  left: 22px;
+  width: 9px;
+  height: 19px;
+  border-radius: 5px;
+  background: var(--suit-blue);
+  transform-origin: top center;
+}
+
+.leg::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 9px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--suit-dark);
+  transform-origin: top center;
+}
+
+/* Counter-swing pairing: Left arm & Right leg move together */
+.arm.left {
+  animation: arm-swing-a 0.44s ease-in-out infinite alternate;
+}
+
+.arm.left::after {
+  animation: elbow-bend-a 0.44s ease-in-out infinite alternate;
+}
+
+.arm.right {
+  animation: arm-swing-b 0.44s ease-in-out infinite alternate;
+}
+
+.arm.right::after {
+  animation: elbow-bend-b 0.44s ease-in-out infinite alternate;
+}
+
+.leg.right {
+  animation: leg-swing-a 0.44s ease-in-out infinite alternate;
+}
+
+.leg.right::after {
+  animation: knee-bend-a 0.44s ease-in-out infinite alternate;
+}
+
+.leg.left {
+  animation: leg-swing-b 0.44s ease-in-out infinite alternate;
+}
+
+.leg.left::after {
+  animation: knee-bend-b 0.44s ease-in-out infinite alternate;
+}
+
+@keyframes arm-swing-a {
+  from {
+    transform: rotate(-45deg);
+  }
+
+  to {
+    transform: rotate(65deg);
+  }
+}
+
+@keyframes arm-swing-b {
+  from {
+    transform: rotate(65deg);
+  }
+
+  to {
+    transform: rotate(-45deg);
+  }
+}
+
+@keyframes elbow-bend-a {
+  from {
+    transform: rotate(-85deg);
+  }
+
+  to {
+    transform: rotate(-30deg);
+  }
+}
+
+@keyframes elbow-bend-b {
+  from {
+    transform: rotate(-30deg);
+  }
+
+  to {
+    transform: rotate(-85deg);
+  }
+}
+
+@keyframes leg-swing-a {
+  from {
+    transform: rotate(-55deg);
+  }
+
+  to {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes leg-swing-b {
+  from {
+    transform: rotate(45deg);
+  }
+
+  to {
+    transform: rotate(-55deg);
+  }
+}
+
+@keyframes knee-bend-a {
+  from {
+    transform: rotate(40deg);
+  }
+
+  to {
+    transform: rotate(55deg);
+  }
+}
+
+@keyframes knee-bend-b {
+  from {
+    transform: rotate(55deg);
+  }
+
+  to {
+    transform: rotate(40deg);
+  }
+}
+
+@keyframes bob {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes jump {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-75px);
   }
 }
